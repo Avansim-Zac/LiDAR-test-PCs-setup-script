@@ -9,6 +9,13 @@ echo " Target Hardware: OnLogic K410"
 echo "========================================================"
 
 # --------------------------------------------------------
+# 0. System-Wide Update and Package Upgrade
+# --------------------------------------------------------
+echo "--> Running general system repository update and package upgrade..."
+sudo apt-get update -y
+sudo apt-get upgrade -y
+
+# --------------------------------------------------------
 # 1. Update Package Repositories
 # --------------------------------------------------------
 echo "--> Enabling Universe repository and updating package definitions..."
