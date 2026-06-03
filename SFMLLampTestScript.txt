@@ -1,70 +1,41 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
+#include "pse.h" // The driver's internal header file
 
-// OnLogic Kernel Architecture Payload Structure Models
-struct pse_ioctl_do_data {
-    uint8_t index; // The Output Pin index target (0 for Out0/Pin 4)
-    uint8_t state; // Target configuration state (1 = HIGH, 0 = LOW)
-} __attribute__((packed));
-
-struct pse_ioctl_di_data {
-    uint8_t index; // Pin index lookup
-    uint8_t state; // Return slot variable for pin readings
-} __attribute__((packed));
-
-// Re-calculated Low-level Linux ioctl Commands Matching Kernel Architecture
-#define PSE_IOCTL_MAGIC 'p'
-#define PSE_IOCTL_GET_DI _IOWR(PSE_IOCTL_MAGIC, 3, struct pse_ioctl_di_data)
-#define PSE_IOCTL_SET_DO _IOW(PSE_IOCTL_MAGIC, 4, struct pse_ioctl_do_data)
-
-// Queries ModBay Pin 3 (In0)
-bool isPhysicalButtonPressed() {
-    int fd = open("/dev/pse0", O_RDWR);
+// Queries Pin 3 (In0) using the real driver framework
+bool isPhysicalButtonPressed(int fd) {
     if (fd < 0) return false;
 
-    struct pse_ioctl_di_data data;
-    data.index = 0; // We check Input Channel 0 (Pin 3)
-    data.state = 1; // Default backstop state initialization
-
-    if (ioctl(fd, PSE_IOCTL_GET_DI, &data) < 0) {
-        close(fd);
+    uint8_t states = 0xFF;
+    // Reads all input pins into a single bitwise flag block
+    if (pse_get_di(fd, &states) != 0) {
         return false;
     }
-    close(fd);
 
-    // If data.state reads back 0, Pin 3 has bridged to Pin 2 (GND)
-    return (data.state == 0);
-}
-
-// Controls ModBay Pin 4 (Out0)
-void setPhysicalLamp(bool turnOn) {
-    int fd = open("/dev/pse0", O_RDWR);
-    if (fd < 0) return;
-
-    struct pse_ioctl_do_data data;
-    data.index = 0; // Target Output 0 (Pin 4)
-    data.state = turnOn ? 1 : 0;
-
-    ioctl(fd, PSE_IOCTL_SET_DO, &data);
-    close(fd);
+    // Pin 3 (In0) maps to bit 0. It drops to '0' when shorted to Pin 2 (GND)
+    return ((states & 0x01) == 0);
 }
 
 int main() {
-    std::cout << "Loading Aligned ModBay System Controller Context..." << std::endl;
+    std::cout << "Opening communication channel with Intel PSE Driver..." << std::endl;
+
+    // MANDATORY STEP: Open and bind the ISHTP client interface connection
+    int fd = pse_open();
+    if (fd < 0) {
+        std::cerr << "CRITICAL ERROR: Failed to talk to /dev/pse0. Run script as sudo!" << std::endl;
+        return 1;
+    }
 
     sf::RenderWindow window(sf::VideoMode(400, 400), "Karbon ModBay IO Test");
-    window.setFramerateLimit(30); 
+    window.setFramerateLimit(30);
 
     sf::CircleShape visualLamp(70.f);
     visualLamp.setOrigin(70.f, 70.f);
     visualLamp.setPosition(200.f, 200.f);
-    visualLamp.setFillColor(sf::Color::Red); 
+    visualLamp.setFillColor(sf::Color::Red);
 
     bool physicalLampState = false;
-    setPhysicalLamp(physicalLampState); // Assure pins start dead
+    pse_set_do(fd, 0, 0); // Force Output 0 (Pin 4) Low on startup
 
     while (window.isOpen()) {
         sf::Event event;
@@ -72,24 +43,26 @@ int main() {
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
-            
-            // SCREEN INTERACTION DETECTED
+
+            // SCREEN CLICK EVENT: Toggles physical Output 0 (Pin 4)
             if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     physicalLampState = !physicalLampState;
-                    setPhysicalLamp(physicalLampState);
-                    std::cout << "Dispatched ModBay ioctl State Request -> " << (physicalLampState ? "HIGH" : "LOW") << std::endl;
+                    
+                    // Directly writes 1 (HIGH) or 0 (LOW) to ModBay Output 0 (Pin 4)
+                    pse_set_do(fd, 0, physicalLampState ? 1 : 0);
+                    std::cout << "Sent Signal to Pin 4 -> " << (physicalLampState ? "HIGH" : "LOW") << std::endl;
                 }
             }
         }
 
-        // HARDWARE EVENT SURVEY: Continually evaluate button to override color states
-        if (isPhysicalButtonPressed()) {
-            visualLamp.setFillColor(sf::Color::Green); // Physical circuit closed (Button Down)
+        // HARDWARE POLLING: Check the physical button state
+        if (isPhysicalButtonPressed(fd)) {
+            visualLamp.setFillColor(sf::Color::Green); // Physical button pressed
         } else {
-            // Updated: Click feedback is decoupled from ioctl fails so the shape updates immediately
+            // Decay back to screen toggle states if button is released
             if (physicalLampState) {
-                visualLamp.setFillColor(sf::Color::Blue);  // UI click active (Output High)
+                visualLamp.setFillColor(sf::Color::Blue);  // Screen click active (Output High)
             } else {
                 visualLamp.setFillColor(sf::Color::Red);   // Standby (Output Low)
             }
@@ -100,6 +73,8 @@ int main() {
         window.display();
     }
 
-    setPhysicalLamp(false); // Safeguard shutdown sequence
+    // Clean up pins and safely close the driver channel upon exit
+    pse_set_do(fd, 0, 0);
+    pse_close(fd);
     return 0;
 }
