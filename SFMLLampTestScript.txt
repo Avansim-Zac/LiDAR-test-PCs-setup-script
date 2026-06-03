@@ -1,6 +1,10 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include "pse.h" // The driver's internal header file
+
+// FIX: Tells the C++ compiler to link with the pure C driver files correctly
+extern "C" {
+    #include "pse.h"
+}
 
 // Queries Pin 3 (In0) using the real driver framework
 bool isPhysicalButtonPressed(int fd) {
@@ -19,20 +23,21 @@ bool isPhysicalButtonPressed(int fd) {
 int main() {
     std::cout << "Opening communication channel with Intel PSE Driver..." << std::endl;
 
-    // MANDATORY STEP: Open and bind the ISHTP client interface connection
+    // Open and claim the hardware channel once at startup
     int fd = pse_open();
     if (fd < 0) {
-        std::cerr << "CRITICAL ERROR: Failed to talk to /dev/pse0. Run script as sudo!" << std::endl;
+        std::cerr << "CRITICAL ERROR: Failed to open /dev/pse0. You MUST run this as sudo!" << std::endl;
         return 1;
     }
 
-    sf::RenderWindow window(sf::VideoMode(400, 400), "Karbon ModBay IO Test");
+    sf::RenderWindow window(sf::VideoMode(400, 400), "Karbon ModBay Native IO Bridge");
     window.setFramerateLimit(30);
 
+    // Setup visual window elements
     sf::CircleShape visualLamp(70.f);
     visualLamp.setOrigin(70.f, 70.f);
     visualLamp.setPosition(200.f, 200.f);
-    visualLamp.setFillColor(sf::Color::Red);
+    visualLamp.setFillColor(sf::Color::Red); // Default state: Off/Released
 
     bool physicalLampState = false;
     pse_set_do(fd, 0, 0); // Force Output 0 (Pin 4) Low on startup
@@ -44,7 +49,7 @@ int main() {
                 window.close();
             }
 
-            // SCREEN CLICK EVENT: Toggles physical Output 0 (Pin 4)
+            // SCREEN CLICK EVENT: Left-clicking inside the window toggles Pin 4 (Out0)
             if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     physicalLampState = !physicalLampState;
