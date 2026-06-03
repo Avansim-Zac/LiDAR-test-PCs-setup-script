@@ -14,6 +14,11 @@ echo "========================================================"
 echo "--> Running general system repository update and package upgrade..."
 sudo apt-get update -y
 sudo apt-get upgrade -y
+sudo apt update -y
+sudo apt upgrade -y
+echo "--> Installing curl and git..."
+sudo apt install curl -y
+sudo apt install git -y
 
 # --------------------------------------------------------
 # 1. Update Package Repositories
@@ -44,6 +49,7 @@ sudo apt-get install -y \
 # --------------------------------------------------------
 # 4. Apply OnLogic Kernel Bug Fix (pinctrl_elkhartlake blacklist)
 # --------------------------------------------------------
+echo 
 echo "--> Checking/Applying GRUB blacklist patch for Elkhart Lake..."
 # The pinctrl_elkhartlake driver is known to timeout on startup/shutdown. 
 # We append the blacklist rule to the default kernel command line.
@@ -59,18 +65,10 @@ fi
 # 5. Download and Install OnLogic PSE Driver
 # --------------------------------------------------------
 echo "--> Installing OnLogic PSE (IO/CAN/DIO/Serial) Driver..."
-BUILD_DIR="$HOME/pse_driver_build"
-
-if [ ! -d "$BUILD_DIR" ]; then
-    git clone https://github.com "$BUILD_DIR"
-    cd "$BUILD_DIR"
-    sudo chmod +x install.sh
-    # Executes the automated check, build, and module insertion script provided by OnLogic
-    sudo ./install.sh
-    echo "    [OK] PSE Driver module built and inserted successfully."
-else
-    echo "    [SKIP] PSE driver build directory already exists."
-fi
+sudo git clone https://github.com/onlogic/ubuntu-elkhart-lake-pse-driver.git pse_heci
+cd pse_heci
+sudo chmod +x install.sh && sudo ./install.sh
+cd - 
 
 # --------------------------------------------------------
 # 6. Multimedia Capabilities (Display & Text Rendering)
