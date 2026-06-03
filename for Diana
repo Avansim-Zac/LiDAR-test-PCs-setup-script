@@ -41,3 +41,12 @@ lidartestrig7@lidartestrig7-Karbon4X0:~$ sudo dkms status
 pse, 1.3, 5.15.0-1016-intel-iotg, x86_64: installed
 pse, 1.3, 5.15.0-1079-intel-iotg, x86_64: installed
 lidartestrig7@lidartestrig7-Karbon4X0:~$ 
+
+lidartestrig7@lidartestrig7-Karbon4X0:~$ lsmod | grep ishtp
+cros_ec_ishtp          20480  0
+cros_ec                20480  1 cros_ec_ishtp
+intel_ishtp_loader     24576  0
+intel_ishtp_hid        28672  0
+hid                   147456  3 usbhid,intel_ishtp_hid,hid_generic
+intel_ishtp            53248  4 cros_ec_ishtp,intel_ishtp_hid,intel_ish_ipc,intel_ishtp_loader
+
