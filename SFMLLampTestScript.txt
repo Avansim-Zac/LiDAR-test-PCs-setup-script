@@ -1,58 +1,63 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include <cstdio>
-#include <memory>
+#include <fstream>
 #include <string>
 
-// Helper function to execute CLI commands and catch the terminal output
-std::string execCommand(const char* cmd) {
-    char buffer[128];
-    std::string result = "";
-    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
-    if (!pipe) return "";
-    while (fgets(buffer, sizeof(buffer), pipe.get()) != nullptr) {
-        result += buffer;
+// Helper to write a command directly to the Karbon hardware port and read the response
+std::string talkToHardware(const std::string& command) {
+    // Open the raw serial device path used by OnLogic hardware
+    std::fstream serialPort("/dev/ttyACM0", std::ios::in | std::ios::out);
+    if (!serialPort.is_open()) {
+        // Fallback to alternative port index if ACM0 isn't initialized
+        serialPort.open("/dev/ttyACM1", std::ios::in | std::ios::out);
+        if (!serialPort.is_open()) return "";
     }
-    return result;
+
+    // Send the exact command string to the microcontroller
+    serialPort << command << "\r\n";
+    serialPort.flush();
+
+    // Read the feedback line returned by the machine
+    std::string response;
+    std::getline(serialPort, response);
+    return response;
 }
 
-// Checks the state of Karbon Input 0
-// Assumes 'karbon op dio-state' returns a bit string where the first bit is Input 0
+// Queries the hardware button state
 bool isPhysicalButtonPressed() {
-    std::string output = execCommand("karbon op dio-state");
-    if (output.empty()) return false;
+    std::string state = talkToHardware("op dio-state");
     
-    // Example output parser: If the input is pulled low (0), the button is pressed
-    // Adjust index based on your exact 'karbon' utility output string
-    if (output.length() > 0 && output[0] == '0') {
-        return true; 
-    }
-    return false;
+    // If the port failed or returned a bad string, exit early
+    if (state.length() < 8) return false;
+    
+    // Index 0 represents physical Input 0.
+    // Pulled High (1) normally. Drops to Low (0) when the physical button links to GND.
+    return (state[0] == '0');
 }
 
-// Toggles the physical lamp on Karbon Output 0
+// Controls the hardware lamp output pin
 void setPhysicalLamp(bool turnOn) {
     if (turnOn) {
-        execCommand("karbon op set-output 0 1"); // Set Output 0 to High
+        talkToHardware("op set-output 0 1");
     } else {
-        execCommand("karbon op set-output 0 0"); // Set Output 0 to Low
+        talkToHardware("op set-output 0 0");
     }
 }
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(400, 400), "Karbon 400 IO Test");
-    window.setFramerateLimit(30); // Limit frame rate to prevent hammering the MCU too fast
+    sf::RenderWindow window(sf::VideoMode(400, 400), "Karbon Native Port Test");
+    window.setFramerateLimit(30); // 30 FPS provides a highly responsive UI
 
-    // SFML Visual Representing the status of your physical button
-    sf::CircleShape visualLamp(80.f);
-    visualLamp.setOrigin(80.f, 80.f);
+    // Setup visual interface indicators
+    sf::CircleShape visualLamp(70.f);
+    visualLamp.setOrigin(70.f, 70.f);
     visualLamp.setPosition(200.f, 200.f);
-    visualLamp.setFillColor(sf::Color::Red); // Red = Button Released
+    visualLamp.setFillColor(sf::Color::Red);
 
     bool physicalLampState = false;
-
-    // Ensure outputs start turned off
     setPhysicalLamp(physicalLampState);
+
+    std::cout << "Native app running. Click inside the window to toggle the physical lamp." << std::endl;
 
     while (window.isOpen()) {
         sf::Event event;
@@ -61,29 +66,27 @@ int main() {
                 window.close();
             }
             
-            // IF YOU CLICK THE SFML WINDOW: Toggle the physical lamp/LED
+            // Mouse click event toggles the hardware lamp pin
             if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     physicalLampState = !physicalLampState;
                     setPhysicalLamp(physicalLampState);
-                    std::cout << "Physical Lamp toggled to: " << physicalLampState << std::endl;
                 }
             }
         }
 
-        // IF YOU PRESS THE PHYSICAL BUTTON: Change the SFML UI Lamp Color
+        // Hardware Polling: Update window shape color depending on physical button
         if (isPhysicalButtonPressed()) {
-            visualLamp.setFillColor(sf::Color::Green); // Physical button completing the circuit
+            visualLamp.setFillColor(sf::Color::Green);
         } else {
             visualLamp.setFillColor(sf::Color::Red);
         }
 
-        window.clear(sf::Color::Black);
+        window.clear(sf::Color(30, 30, 30));
         window.draw(visualLamp);
         window.display();
     }
 
-    // Clean up: turn off the lamp when closing the app
-    setPhysicalLamp(false);
+    setPhysicalLamp(false); // Safeguard shutdown sequence
     return 0;
 }
