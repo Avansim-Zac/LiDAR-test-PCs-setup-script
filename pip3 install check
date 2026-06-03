@@ -1,0 +1,1 @@
+python3 -c "import pykarbon.pykarbon as pk; dev = pk.Karbon(); dev.show_info()"
