@@ -3,24 +3,22 @@
 #include <fstream>
 #include <string>
 
-// Transmits commands over the raw system connection and catches the text output line
+// Transmits raw terminal signals directly over the internal device path
 std::string talkToHardware(const std::string& command) {
-    // One-time serial interface initialization setup
     static bool portConfigured = false;
     if (!portConfigured) {
+        // Initialize port speeds and remove stream processing echo
         system("stty -F /dev/ttyACM0 115200 raw -echo -echoe -echok -echoctl -echoke 2>/dev/null");
         system("stty -F /dev/ttyACM1 115200 raw -echo -echoe -echok -echoctl -echoke 2>/dev/null");
         portConfigured = true;
     }
 
-    // Open active hardware port line mapping
     std::fstream serialPort("/dev/ttyACM0", std::ios::in | std::ios::out);
     if (!serialPort.is_open()) {
         serialPort.open("/dev/ttyACM1", std::ios::in | std::ios::out);
-        if (!serialPort.is_open()) return "";
+        if (!serialPort.is_open()) return ""; 
     }
 
-    // Direct firmware message passing
     serialPort << command << "\r\n";
     serialPort.flush();
 
@@ -29,18 +27,14 @@ std::string talkToHardware(const std::string& command) {
     return response;
 }
 
-// Inspects the state of physical Input 0 (Pin 3 on your ModBay)
 bool isPhysicalButtonPressed() {
     std::string state = talkToHardware("op dio-state");
+    if (state.length() < 4) return false; // ModBay arrays may return 4-bit strings
     
-    // Safety exit if communication drops out or string isn't fully formed
-    if (state.length() < 8) return false;
-    
-    // FIXED: Accessing index [0] parses the specific character character '0' (Pressed/GND)
+    // Check character index 0 against character '0'
     return (state[0] == '0');
 }
 
-// Drives physical Output 0 (Pin 4 on your ModBay) high or low
 void setPhysicalLamp(bool turnOn) {
     if (turnOn) {
         talkToHardware("op set-output 0 1");
@@ -50,20 +44,21 @@ void setPhysicalLamp(bool turnOn) {
 }
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(400, 400), "Karbon 400 ModBay IO Bridge");
-    window.setFramerateLimit(30); 
+    std::cout << "Starting Karbon ModBay Interface Window..." << std::endl;
 
-    // Setup visual window elements
+    // Create the window environment explicitly
+    sf::RenderWindow window(sf::VideoMode(400, 400), "Karbon ModBay IO Test");
+    window.setFramerateLimit(20);
+
     sf::CircleShape visualLamp(70.f);
     visualLamp.setOrigin(70.f, 70.f);
     visualLamp.setPosition(200.f, 200.f);
-    visualLamp.setFillColor(sf::Color::Red); // Default state: Open
+    visualLamp.setFillColor(sf::Color::Red);
 
     bool physicalLampState = false;
-    setPhysicalLamp(physicalLampState); // Assure pins clear on start
+    setPhysicalLamp(physicalLampState);
 
-    std::cout << "Application online. Click the visual window area to toggle Pin 4 (Out0)." << std::endl;
-
+    // This loop keeps the app open. If it skips this, window initialization failed.
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -71,21 +66,19 @@ int main() {
                 window.close();
             }
             
-            // WINDOW MOUSE INTERACTION: Toggles Pin 4 (Out0) status
             if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     physicalLampState = !physicalLampState;
                     setPhysicalLamp(physicalLampState);
-                    std::cout << "Sent toggle signal. Lamp target is: " << (physicalLampState ? "HIGH" : "LOW") << std::endl;
+                    std::cout << "Toggled Out0 (Pin 4) -> " << (physicalLampState ? "ON" : "OFF") << std::endl;
                 }
             }
         }
 
-        // HARDWARE PIN SURVEY: Read Pin 3 (In0) to toggle UI graphic colors
         if (isPhysicalButtonPressed()) {
-            visualLamp.setFillColor(sf::Color::Green); // Active Connection
+            visualLamp.setFillColor(sf::Color::Green);
         } else {
-            visualLamp.setFillColor(sf::Color::Red);   // Standby
+            visualLamp.setFillColor(sf::Color::Red);
         }
 
         window.clear(sf::Color(30, 30, 30));
@@ -93,6 +86,6 @@ int main() {
         window.display();
     }
 
-    setPhysicalLamp(false); // Clear power paths upon exit
+    setPhysicalLamp(false);
     return 0;
 }
