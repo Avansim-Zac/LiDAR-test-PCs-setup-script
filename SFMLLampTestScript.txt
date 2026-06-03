@@ -3,39 +3,38 @@
 #include <fstream>
 #include <string>
 
-// Helper to write a command directly to the Karbon hardware port and read the response
+// Transmits raw commands directly over the onboard serial channel
 std::string talkToHardware(const std::string& command) {
-    // Open the raw serial device path used by OnLogic hardware
+    // Open the primary hardware interface file mapping used by OnLogic
     std::fstream serialPort("/dev/ttyACM0", std::ios::in | std::ios::out);
     if (!serialPort.is_open()) {
-        // Fallback to alternative port index if ACM0 isn't initialized
+        // Fallback option if Ubuntu registers the MCU on ACM1
         serialPort.open("/dev/ttyACM1", std::ios::in | std::ios::out);
         if (!serialPort.is_open()) return "";
     }
 
-    // Send the exact command string to the microcontroller
+    // Direct firmware command pass-through
     serialPort << command << "\r\n";
     serialPort.flush();
 
-    // Read the feedback line returned by the machine
+    // Catch the returned console response
     std::string response;
     std::getline(serialPort, response);
     return response;
 }
 
-// Queries the hardware button state
+// Inspects physical Input 0
 bool isPhysicalButtonPressed() {
     std::string state = talkToHardware("op dio-state");
     
-    // If the port failed or returned a bad string, exit early
+    // Safety exit if communication drops out
     if (state.length() < 8) return false;
     
-    // Index 0 represents physical Input 0.
-    // Pulled High (1) normally. Drops to Low (0) when the physical button links to GND.
-    return (state[0] == '0');
+    // Index 0 tracks Input 0. Drops to '0' when the button connects to GND.
+    return (state == '0');
 }
 
-// Controls the hardware lamp output pin
+// Drives physical Output 0 high/low to switch your physical lamp
 void setPhysicalLamp(bool turnOn) {
     if (turnOn) {
         talkToHardware("op set-output 0 1");
@@ -45,10 +44,9 @@ void setPhysicalLamp(bool turnOn) {
 }
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(400, 400), "Karbon Native Port Test");
-    window.setFramerateLimit(30); // 30 FPS provides a highly responsive UI
+    sf::RenderWindow window(sf::VideoMode(400, 400), "Karbon Native IO Bridge");
+    window.setFramerateLimit(30);
 
-    // Setup visual interface indicators
     sf::CircleShape visualLamp(70.f);
     visualLamp.setOrigin(70.f, 70.f);
     visualLamp.setPosition(200.f, 200.f);
@@ -57,7 +55,7 @@ int main() {
     bool physicalLampState = false;
     setPhysicalLamp(physicalLampState);
 
-    std::cout << "Native app running. Click inside the window to toggle the physical lamp." << std::endl;
+    std::cout << "Application online. Click window to switch your physical lamp." << std::endl;
 
     while (window.isOpen()) {
         sf::Event event;
@@ -66,7 +64,6 @@ int main() {
                 window.close();
             }
             
-            // Mouse click event toggles the hardware lamp pin
             if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     physicalLampState = !physicalLampState;
@@ -75,7 +72,6 @@ int main() {
             }
         }
 
-        // Hardware Polling: Update window shape color depending on physical button
         if (isPhysicalButtonPressed()) {
             visualLamp.setFillColor(sf::Color::Green);
         } else {
@@ -87,6 +83,6 @@ int main() {
         window.display();
     }
 
-    setPhysicalLamp(false); // Safeguard shutdown sequence
+    setPhysicalLamp(false); 
     return 0;
 }
