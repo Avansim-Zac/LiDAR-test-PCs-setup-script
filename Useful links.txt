@@ -1,0 +1,18 @@
+K410 Documentation page
+https://support.onlogic.com/product-documentation/rugged-products/karbon-k400-series/k410-k430#id-3asmuz5yourf
+
+
+How to use DIO
+https://support.onlogic.com/support-articles/how-tos/more/how-to-use-dio
+
+
+MCU usage 
+https://support.onlogic.com/support-articles/how-tos/more/microcontroller-mcu-usage
+
+
+PyKarbon github page
+https://github.com/onlogic/Pykarbon
+
+
+Onlogic PSE driver for Ubuntu
+https://github.com/onlogic/ubuntu-elkhart-lake-pse-driver
