@@ -3,3 +3,6 @@ alternate:
 sudo usermod -a -G dialout $USER && sudo apt remove brltty -y && sudo reboot
 sudo apt-get remove --purge karbon calligra -y && sudo apt-get autoremove -y
 
+sudo wget https://onlogic.com -O /usr/bin/hwc
+sudo chmod +x /usr/bin/hwc
+
