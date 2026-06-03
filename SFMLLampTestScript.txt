@@ -1,53 +1,60 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include <fstream>
-#include <string>
-#include <cstdlib>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
 
-// Helper to query the state of Input 0 using standard system interaction hooks
-bool checkHardwareInput() {
-    // We open a pipe to view the value of input pin zero
-    // In0 is pulled High (1) by default; pulling it to Pin 2 (GND) drops the value to 0
-    FILE* pipe = popen("cat /sys/class/gpio/gpio*/value 2>/dev/null", "r");
-    if (!pipe) return false;
+// Low-level Linux ioctl Magic Numbers defined by the OnLogic PSE kernel driver
+#define PSE_IOCTL_MAGIC       'p'
+#define PSE_IOCTL_GET_DI      _IOR(PSE_IOCTL_MAGIC, 1, uint8_t)
+#define PSE_IOCTL_SET_DO      _IOW(PSE_IOCTL_MAGIC, 2, uint16_t)
 
-    char buffer[128];
-    std::string result = "";
-    while (fgets(buffer, sizeof(buffer), pipe) != NULL) {
-        result += buffer;
+// Queries Pin 3 (In0) using a native Linux ioctl call
+bool isPhysicalButtonPressed() {
+    // Open the driver file in read-only mode
+    int fd = open("/dev/pse0", O_RDONLY);
+    if (fd < 0) return false;
+
+    uint8_t inputStates = 0;
+    // Execute the ioctl command to pull the current hardware registers
+    if (ioctl(fd, PSE_IOCTL_GET_DI, &inputStates) < 0) {
+        close(fd);
+        return false;
     }
-    pclose(pipe);
+    close(fd);
 
-    // If the input reads back a low signal, the physical button is pressed
-    return (result.find("0") != std::string::npos);
+    // Bit 0 tracks Input 0 (Pin 3). It drops to '0' when shorted to Pin 2 (GND).
+    return ((inputStates & 0x01) == 0);
 }
 
-// Helper to write changes cleanly to Output 0 (Pin 4)
-void toggleHardwareOutput(bool turnOn) {
-    if (turnOn) {
-        // Direct execution commands handled cleanly by the underlying PSE driver mapping
-        std::system("echo 1 > /sys/class/gpio/gpio*/value 2>/dev/null");
-    } else {
-        std::system("echo 0 > /sys/class/gpio/gpio*/value 2>/dev/null");
-    }
+// Controls Pin 4 (Out0) using a native Linux ioctl call
+void setPhysicalLamp(bool turnOn) {
+    int fd = open("/dev/pse0", O_WRONLY);
+    if (fd < 0) return;
+
+    // The driver expects a 16-bit integer where:
+    // High byte = Pin Index (0 for Output 0)
+    // Low byte = State (1 for High, 0 for Low)
+    uint16_t payload = (0 << 8) | (turnOn ? 1 : 0);
+
+    // Execute the ioctl command to switch the physical transistor line
+    ioctl(fd, PSE_IOCTL_SET_DO, &payload);
+    close(fd);
 }
 
 int main() {
-    std::cout << "Loading Registered Driver Connection..." << std::endl;
-
-    // Load the kernel driver instance explicitly to ensure communication paths are ready
-    std::system("sudo modprobe pse 2>/dev/null");
+    std::cout << "Loading Native Linux ioctl Driver Interface..." << std::endl;
 
     sf::RenderWindow window(sf::VideoMode(400, 400), "Karbon ModBay IO Test");
-    window.setFramerateLimit(20); // 20 FPS ensures low overhead on system pipes
+    window.setFramerateLimit(30); 
 
     sf::CircleShape visualLamp(70.f);
     visualLamp.setOrigin(70.f, 70.f);
     visualLamp.setPosition(200.f, 200.f);
-    visualLamp.setFillColor(sf::Color::Red);
+    visualLamp.setFillColor(sf::Color::Red); 
 
     bool physicalLampState = false;
-    toggleHardwareOutput(physicalLampState);
+    setPhysicalLamp(physicalLampState); // Turn the physical lamp off on start
 
     while (window.isOpen()) {
         sf::Event event;
@@ -56,21 +63,21 @@ int main() {
                 window.close();
             }
             
-            // SCREEN INTERACTION EVENT: Toggles physical Output 0 (Pin 4)
+            // SCREEN CLICK EVENT: Left-clicking inside the window toggles Pin 4 (Out0)
             if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     physicalLampState = !physicalLampState;
-                    toggleHardwareOutput(physicalLampState);
-                    std::cout << "Window Clicked! Pin 4 Set to: " << (physicalLampState ? "HIGH" : "LOW") << std::endl;
+                    setPhysicalLamp(physicalLampState);
+                    std::cout << "UI Mouse Click. Output State -> " << (physicalLampState ? "ON" : "OFF") << std::endl;
                 }
             }
         }
 
-        // HARDWARE EVENT SURVEY: Reads Pin 3 (In0) to update graphic colors dynamically
-        if (checkHardwareInput()) {
-            visualLamp.setFillColor(sf::Color::Green); // Physical circuit closed
+        // HARDWARE POLLING LOOP: Reads Pin 3 (In0) to update graphic colors dynamically
+        if (isPhysicalButtonPressed()) {
+            visualLamp.setFillColor(sf::Color::Green); // Physical button pressed
         } else {
-            visualLamp.setFillColor(sf::Color::Red);   // Standby open circuit
+            visualLamp.setFillColor(sf::Color::Red);   // Physical button released
         }
 
         window.clear(sf::Color(30, 30, 30));
@@ -78,6 +85,6 @@ int main() {
         window.display();
     }
 
-    toggleHardwareOutput(false); // Safeguard payload on close
+    setPhysicalLamp(false); // Safeguard shutdown sequence
     return 0;
 }
