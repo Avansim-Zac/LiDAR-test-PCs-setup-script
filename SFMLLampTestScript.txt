@@ -2,62 +2,52 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cstdlib>
 
-// Raw firmware hex byte frames parsed natively by the OnLogic PSE ModBay controller
-const uint8_t CMD_READ_DIO[]   = { 0x01, 0x00 }; 
-const uint8_t CMD_WRITE_HIGH[] = { 0x02, 0x00, 0x01 }; // Set Out0 (Pin 4) On
-const uint8_t CMD_WRITE_LOW[]  = { 0x02, 0x00, 0x00 }; // Set Out0 (Pin 4) Off
+// Helper to query the state of Input 0 using standard system interaction hooks
+bool checkHardwareInput() {
+    // We open a pipe to view the value of input pin zero
+    // In0 is pulled High (1) by default; pulling it to Pin 2 (GND) drops the value to 0
+    FILE* pipe = popen("cat /sys/class/gpio/gpio*/value 2>/dev/null", "r");
+    if (!pipe) return false;
 
-// Directly writes raw command byte sequences to your new driver node
-bool toggleModBayOutput(const uint8_t* command, size_t size) {
-    std::ofstream device("/dev/pse0", std::ios::binary);
-    if (!device.is_open()) return false;
-    
-    device.write(reinterpret_cast<const char*>(command), size);
-    device.flush();
-    return true;
+    char buffer[128];
+    std::string result = "";
+    while (fgets(buffer, sizeof(buffer), pipe) != NULL) {
+        result += buffer;
+    }
+    pclose(pipe);
+
+    // If the input reads back a low signal, the physical button is pressed
+    return (result.find("0") != std::string::npos);
 }
 
-// Interrogates Pin 3 (In0) to see if it is bridged to Pin 2 (GND)
-bool isPhysicalButtonPressed() {
-    std::fstream device("/dev/pse0", std::ios::in | std::ios::out | std::ios::binary);
-    if (!device.is_open()) return false;
-
-    // Send a quick register poll request command
-    device.write(reinterpret_cast<const char*>(CMD_READ_DIO), sizeof(CMD_READ_DIO));
-    device.flush();
-
-    // Catch the raw response byte returned from the motherboard driver
-    char responseByte = 0;
-    device.read(&responseByte, 1);
-
-    // Bitwise check isolates index slot 0 (Input 0). 
-    // It drops low (0) when your hardware button pulls the path to GND.
-    return ((responseByte & 0x01) == 0);
-}
-
-void setPhysicalLamp(bool turnOn) {
+// Helper to write changes cleanly to Output 0 (Pin 4)
+void toggleHardwareOutput(bool turnOn) {
     if (turnOn) {
-        toggleModBayOutput(CMD_WRITE_HIGH, sizeof(CMD_WRITE_HIGH));
+        // Direct execution commands handled cleanly by the underlying PSE driver mapping
+        std::system("echo 1 > /sys/class/gpio/gpio*/value 2>/dev/null");
     } else {
-        toggleModBayOutput(CMD_WRITE_LOW, sizeof(CMD_WRITE_LOW));
+        std::system("echo 0 > /sys/class/gpio/gpio*/value 2>/dev/null");
     }
 }
 
 int main() {
-    std::cout << "Loading Integrated ModBay PSE Controller..." << std::endl;
+    std::cout << "Loading Registered Driver Connection..." << std::endl;
 
-    sf::RenderWindow window(sf::VideoMode(400, 400), "Karbon ModBay Native IO Bridge");
-    window.setFramerateLimit(30); // 30 FPS gives rapid, snappy hardware responses
+    // Load the kernel driver instance explicitly to ensure communication paths are ready
+    std::system("sudo modprobe pse 2>/dev/null");
 
-    // Setup visual window elements
+    sf::RenderWindow window(sf::VideoMode(400, 400), "Karbon ModBay IO Test");
+    window.setFramerateLimit(20); // 20 FPS ensures low overhead on system pipes
+
     sf::CircleShape visualLamp(70.f);
     visualLamp.setOrigin(70.f, 70.f);
     visualLamp.setPosition(200.f, 200.f);
-    visualLamp.setFillColor(sf::Color::Red); // Default state: Off/Released
+    visualLamp.setFillColor(sf::Color::Red);
 
     bool physicalLampState = false;
-    setPhysicalLamp(physicalLampState); // Assure pins start clear on bootup
+    toggleHardwareOutput(physicalLampState);
 
     while (window.isOpen()) {
         sf::Event event;
@@ -66,18 +56,18 @@ int main() {
                 window.close();
             }
             
-            // SCREEN CLICK EVENT: Left-clicking inside the window toggles Pin 4 (Out0)
+            // SCREEN INTERACTION EVENT: Toggles physical Output 0 (Pin 4)
             if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     physicalLampState = !physicalLampState;
-                    setPhysicalLamp(physicalLampState);
-                    std::cout << "Dispatched Core Bus Signal. Lamp Pin 4 Target: " << (physicalLampState ? "HIGH" : "LOW") << std::endl;
+                    toggleHardwareOutput(physicalLampState);
+                    std::cout << "Window Clicked! Pin 4 Set to: " << (physicalLampState ? "HIGH" : "LOW") << std::endl;
                 }
             }
         }
 
-        // HARDWARE EVENT SURVEY: Survey Pin 3 (In0) to update window layouts dynamically
-        if (isPhysicalButtonPressed()) {
+        // HARDWARE EVENT SURVEY: Reads Pin 3 (In0) to update graphic colors dynamically
+        if (checkHardwareInput()) {
             visualLamp.setFillColor(sf::Color::Green); // Physical circuit closed
         } else {
             visualLamp.setFillColor(sf::Color::Red);   // Standby open circuit
@@ -88,6 +78,6 @@ int main() {
         window.display();
     }
 
-    setPhysicalLamp(false); // Resource cleanup safety sequence on application closure
+    toggleHardwareOutput(false); // Safeguard payload on close
     return 0;
 }
