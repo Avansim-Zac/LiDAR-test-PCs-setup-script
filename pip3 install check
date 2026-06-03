@@ -1,3 +1,5 @@
 python3 -c "import pykarbon.pykarbon as pk; dev = pk.Karbon(); dev.show_info()"
 alternate:
 sudo usermod -a -G dialout $USER && sudo apt remove brltty -y && sudo reboot
+sudo apt-get remove --purge karbon calligra -y && sudo apt-get autoremove -y
+
