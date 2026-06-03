@@ -3,64 +3,61 @@
 #include <fstream>
 #include <string>
 
-// Raw firmware hex byte frames parsed natively by the Intel PSE ModBay controller
+// Raw firmware hex byte frames parsed natively by the OnLogic PSE ModBay controller
 const uint8_t CMD_READ_DIO[]   = { 0x01, 0x00 }; 
 const uint8_t CMD_WRITE_HIGH[] = { 0x02, 0x00, 0x01 }; // Set Out0 (Pin 4) On
 const uint8_t CMD_WRITE_LOW[]  = { 0x02, 0x00, 0x00 }; // Set Out0 (Pin 4) Off
 
-// Sends a raw hex buffer packet down the internal system bus mapping
-bool transmitBusPayload(const uint8_t* command, size_t size) {
-    // Standard Linux paths where Intel registers the Elkhart Lake PSE controller nodes
-    std::ofstream device("/dev/ishtp-pse", std::ios::binary);
-    if (!device.is_open()) {
-        device.open("/dev/mei0", std::ios::binary); // Alternative Intel bus layer mapping
-        if (!device.is_open()) return false;
-    }
+// Directly writes raw command byte sequences to your new driver node
+bool toggleModBayOutput(const uint8_t* command, size_t size) {
+    std::ofstream device("/dev/pse0", std::ios::binary);
+    if (!device.is_open()) return false;
     
     device.write(reinterpret_cast<const char*>(command), size);
     device.flush();
     return true;
 }
 
-// Queries Pin 3 (In0) to see if it is bridged to Pin 2 (GND)
+// Interrogates Pin 3 (In0) to see if it is bridged to Pin 2 (GND)
 bool isPhysicalButtonPressed() {
-    std::fstream device("/dev/ishtp-pse", std::ios::in | std::ios::out | std::ios::binary);
-    if (!device.is_open()) {
-        device.open("/dev/mei0", std::ios::in | std::ios::out | std::ios::binary);
-        if (!device.is_open()) return false;
-    }
+    std::fstream device("/dev/pse0", std::ios::in | std::ios::out | std::ios::binary);
+    if (!device.is_open()) return false;
 
+    // Send a quick register poll request command
     device.write(reinterpret_cast<const char*>(CMD_READ_DIO), sizeof(CMD_READ_DIO));
     device.flush();
 
+    // Catch the raw response byte returned from the motherboard driver
     char responseByte = 0;
     device.read(&responseByte, 1);
 
-    // Bit index 0 tracks Input 0. If it reads 0, the button circuit is closed.
+    // Bitwise check isolates index slot 0 (Input 0). 
+    // It drops low (0) when your hardware button pulls the path to GND.
     return ((responseByte & 0x01) == 0);
 }
 
 void setPhysicalLamp(bool turnOn) {
     if (turnOn) {
-        transmitBusPayload(CMD_WRITE_HIGH, sizeof(CMD_WRITE_HIGH));
+        toggleModBayOutput(CMD_WRITE_HIGH, sizeof(CMD_WRITE_HIGH));
     } else {
-        transmitBusPayload(CMD_WRITE_LOW, sizeof(CMD_WRITE_LOW));
+        toggleModBayOutput(CMD_WRITE_LOW, sizeof(CMD_WRITE_LOW));
     }
 }
 
 int main() {
-    std::cout << "Initializing Native Bus Interaction Loop..." << std::endl;
+    std::cout << "Loading Integrated ModBay PSE Controller..." << std::endl;
 
-    sf::RenderWindow window(sf::VideoMode(400, 400), "Karbon ModBay IO Test");
-    window.setFramerateLimit(30); 
+    sf::RenderWindow window(sf::VideoMode(400, 400), "Karbon ModBay Native IO Bridge");
+    window.setFramerateLimit(30); // 30 FPS gives rapid, snappy hardware responses
 
+    // Setup visual window elements
     sf::CircleShape visualLamp(70.f);
     visualLamp.setOrigin(70.f, 70.f);
     visualLamp.setPosition(200.f, 200.f);
-    visualLamp.setFillColor(sf::Color::Red);
+    visualLamp.setFillColor(sf::Color::Red); // Default state: Off/Released
 
     bool physicalLampState = false;
-    setPhysicalLamp(physicalLampState); 
+    setPhysicalLamp(physicalLampState); // Assure pins start clear on bootup
 
     while (window.isOpen()) {
         sf::Event event;
@@ -69,21 +66,21 @@ int main() {
                 window.close();
             }
             
-            // SCREEN CLICK EVENT: Toggles physical Output 0 (Pin 4)
+            // SCREEN CLICK EVENT: Left-clicking inside the window toggles Pin 4 (Out0)
             if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     physicalLampState = !physicalLampState;
                     setPhysicalLamp(physicalLampState);
-                    std::cout << "Screen Clicked. Output Pin 4 Target: " << (physicalLampState ? "HIGH" : "LOW") << std::endl;
+                    std::cout << "Dispatched Core Bus Signal. Lamp Pin 4 Target: " << (physicalLampState ? "HIGH" : "LOW") << std::endl;
                 }
             }
         }
 
-        // HARDWARE POLLING LOOP: Reads Pin 3 to control window layout colors
+        // HARDWARE EVENT SURVEY: Survey Pin 3 (In0) to update window layouts dynamically
         if (isPhysicalButtonPressed()) {
-            visualLamp.setFillColor(sf::Color::Green);
+            visualLamp.setFillColor(sf::Color::Green); // Physical circuit closed
         } else {
-            visualLamp.setFillColor(sf::Color::Red);
+            visualLamp.setFillColor(sf::Color::Red);   // Standby open circuit
         }
 
         window.clear(sf::Color(30, 30, 30));
@@ -91,6 +88,6 @@ int main() {
         window.display();
     }
 
-    setPhysicalLamp(false); 
+    setPhysicalLamp(false); // Resource cleanup safety sequence on application closure
     return 0;
 }
