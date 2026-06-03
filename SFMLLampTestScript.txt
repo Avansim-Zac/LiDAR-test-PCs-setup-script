@@ -3,38 +3,45 @@
 #include <fstream>
 #include <string>
 
-// Transmits raw commands directly over the onboard serial channel
+// Opens the raw system connection, posts a command string, and catches the feedback
 std::string talkToHardware(const std::string& command) {
-    // Open the primary hardware interface file mapping used by OnLogic
+    // 1. One-time terminal configuration to set baud rate and turn off echo
+    static bool portConfigured = false;
+    if (!portConfigured) {
+        system("stty -F /dev/ttyACM0 115200 raw -echo -echoe -echok -echoctl -echoke 2>/dev/null");
+        system("stty -F /dev/ttyACM1 115200 raw -echo -echoe -echok -echoctl -echoke 2>/dev/null");
+        portConfigured = true;
+    }
+
+    // 2. Open the active interface mapping
     std::fstream serialPort("/dev/ttyACM0", std::ios::in | std::ios::out);
     if (!serialPort.is_open()) {
-        // Fallback option if Ubuntu registers the MCU on ACM1
         serialPort.open("/dev/ttyACM1", std::ios::in | std::ios::out);
         if (!serialPort.is_open()) return "";
     }
 
-    // Direct firmware command pass-through
+    // 3. Dispatch the command and parse the line answer text
     serialPort << command << "\r\n";
     serialPort.flush();
 
-    // Catch the returned console response
-    std::string response;
+    std::string response = "";
     std::getline(serialPort, response);
     return response;
 }
 
-// Inspects physical Input 0
+// Inspects the state of physical Input 0
 bool isPhysicalButtonPressed() {
     std::string state = talkToHardware("op dio-state");
     
-    // Safety exit if communication drops out
+    // Safety exit if communication drops out or string isn't populated
     if (state.length() < 8) return false;
     
-    // Index 0 tracks Input 0. Drops to '0' when the button connects to GND.
-    return (state == '0');
+    // Position 0 tracks Input 0.
+    // Fixed: State is a string, so we check character index 0 against the character '0'
+    return (state[0] == '0');
 }
 
-// Drives physical Output 0 high/low to switch your physical lamp
+// Drives physical Output 0 high or low to change your physical lamp line
 void setPhysicalLamp(bool turnOn) {
     if (turnOn) {
         talkToHardware("op set-output 0 1");
@@ -44,18 +51,19 @@ void setPhysicalLamp(bool turnOn) {
 }
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(400, 400), "Karbon Native IO Bridge");
-    window.setFramerateLimit(30);
+    sf::RenderWindow window(sf::VideoMode(400, 400), "Karbon 400 Native IO Bridge");
+    window.setFramerateLimit(30); 
 
+    // Visual indicators inside the window
     sf::CircleShape visualLamp(70.f);
     visualLamp.setOrigin(70.f, 70.f);
     visualLamp.setPosition(200.f, 200.f);
-    visualLamp.setFillColor(sf::Color::Red);
+    visualLamp.setFillColor(sf::Color::Red); 
 
     bool physicalLampState = false;
-    setPhysicalLamp(physicalLampState);
+    setPhysicalLamp(physicalLampState); 
 
-    std::cout << "Application online. Click window to switch your physical lamp." << std::endl;
+    std::cout << "Application online. Click the visual window area to toggle the physical lamp." << std::endl;
 
     while (window.isOpen()) {
         sf::Event event;
@@ -64,18 +72,21 @@ int main() {
                 window.close();
             }
             
+            // WINDOW MOUSE INTERACTION: Updates physical lamp pin status
             if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     physicalLampState = !physicalLampState;
                     setPhysicalLamp(physicalLampState);
+                    std::cout << "Lamp state toggled to: " << physicalLampState << std::endl;
                 }
             }
         }
 
+        // HARDWARE PIN SURVEY: Read physical button to toggle UI graphic colors
         if (isPhysicalButtonPressed()) {
-            visualLamp.setFillColor(sf::Color::Green);
+            visualLamp.setFillColor(sf::Color::Green); 
         } else {
-            visualLamp.setFillColor(sf::Color::Red);
+            visualLamp.setFillColor(sf::Color::Red);   
         }
 
         window.clear(sf::Color(30, 30, 30));
