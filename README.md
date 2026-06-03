@@ -4,7 +4,11 @@ Run this script from the terminal to automatically install all required software
 To run this script, enter the following into the terminal:
 
 sudo apt install curl -y
+
+
 sudo curl -sSL https://raw.githubusercontent.com/Avansim-Zac/LiDAR-test-PCs-setup-script/main/setup.sh | sudo bash
+
+
 
 
 Below is a reference of the IO pins available for external hardware. 
