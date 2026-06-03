@@ -5,4 +5,9 @@ sudo apt-get remove --purge karbon calligra -y && sudo apt-get autoremove -y
 
 sudo wget --no-check-certificate https://onlogic.com -O /usr/bin/hwc && sudo chmod +x /usr/bin/hwc
 
+cd ~/Downloads
+curl -L https://github.com -o pse-driver.zip
+unzip pse-driver.zip
+cd ubuntu-elkhart-lake-pse-driver-main
+sudo ./install.sh
 
