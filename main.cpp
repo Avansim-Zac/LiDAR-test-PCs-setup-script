@@ -64,11 +64,19 @@ int main()
 
     std::cout << "Connected\n";
 
-    setOutput(fd, 0, true);
+    std::cout << "Setting output 0 ON..." << std::endl;
+
+    bool ok = setOutput(fd, 0, true);
+
+    std::cout << "Result: " << ok << std::endl;
 
     sleep(2);
 
-    setOutput(fd, 0, false);
+    std::cout << "Setting output 0 OFF..." << std::endl;
+
+    ok = setOutput(fd, 0, false);
+
+    std::cout << "Result: " << ok << std::endl;
 
     close(fd);
 
