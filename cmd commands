@@ -1,13 +1,5 @@
-python3 -c "import pykarbon.pykarbon as pk; dev = pk.Karbon(); dev.show_info()"
-alternate:
-sudo usermod -a -G dialout $USER && sudo apt remove brltty -y && sudo reboot
-sudo apt-get remove --purge karbon calligra -y && sudo apt-get autoremove -y
-
-sudo wget --no-check-certificate https://onlogic.com -O /usr/bin/hwc && sudo chmod +x /usr/bin/hwc
-
-cd ~/Downloads
-curl -L https://github.com -o pse-driver.zip
-unzip pse-driver.zip
-cd ubuntu-elkhart-lake-pse-driver-main
-sudo ./install.sh
-
+mkdir dio_project
+cd ~/dio_project
+cc -c pse.c -o pse.o
+g++ karbon_dio.cpp pse.o -o karbon_dio
+sudo ./karbon_dio
