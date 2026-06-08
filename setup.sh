@@ -112,7 +112,26 @@ echo "--> Injecting custom Udev rule for /dev/pse..."
 echo 'KERNEL=="pse", MODE="0660", GROUP="dialout"' | sudo tee /etc/udev/rules.d/99-pse.rules
 
 # --------------------------------------------------------
-# 10. Inject Global Code::Blocks SFML Project Template
+# 10. Create DIO test Project
+# --------------------------------------------------------
+echo "--> Creating DIO test Project..."
+mkdir dio_project
+cd ~/heci_pse
+cd examples
+sudo make
+cp pse.c /dio_project
+cp pse.h /dio_project
+cp heci_types.h /dio_project
+cd
+cd ~/dio_project
+curl -L -o karbon_dio.cpp \
+https://raw.githubusercontent.com/Avansim-Zac/LiDAR-test-PCs-setup-script/main/dio_test.cpp
+gcc -c pse.c -o pse.o
+g++ karbon_dio.cpp pse.o -o karbon_dio
+echo "--> Created DIO test Project..."
+
+# --------------------------------------------------------
+# 11. Inject Global Code::Blocks SFML Project Template
 # --------------------------------------------------------
 echo "--> Injecting global Code::Blocks SFML template..."
 
