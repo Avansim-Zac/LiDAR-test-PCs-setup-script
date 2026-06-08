@@ -116,7 +116,7 @@ echo 'KERNEL=="pse", MODE="0660", GROUP="dialout"' | sudo tee /etc/udev/rules.d/
 # --------------------------------------------------------
 echo "--> Creating DIO test Project..."
 mkdir dio_project
-cd ~/heci_pse
+cd ~/pse_heci
 cd examples
 sudo make
 cp pse.c /dio_project
