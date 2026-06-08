@@ -66,7 +66,7 @@ fi
 # --------------------------------------------------------
 echo "--> Installing OnLogic PSE (IO/CAN/DIO/Serial) Driver..."
 sudo git clone https://github.com/onlogic/ubuntu-elkhart-lake-pse-driver.git pse_heci
-cd pse_heci
+cd ~/pse_heci
 sudo chmod +x install.sh && sudo ./install.sh
 cd - 
 
