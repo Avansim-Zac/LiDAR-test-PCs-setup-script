@@ -10,3 +10,6 @@ Code::Blocks is installed for IDE
  - Start a project with SFML template
  - import pse.c pse.h and heci_types.h into the project
   - note pse.c may need to be built separately from the main project
+ - there are some other SFML linkers that aren't added by this template:
+  - sfml-network
+  - sfml-audio
