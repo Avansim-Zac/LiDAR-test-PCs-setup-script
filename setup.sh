@@ -136,11 +136,11 @@ echo "--> Created DIO test Project..."
 echo "--> Injecting global Code::Blocks SFML template..."
 
 # Global directory where system-wide templates are stored for all users
-TEMPLATE_DIR="/usr/share/codeblocks/templates/wizard"
+TEMPLATE_DIR="/usr/share/codeblocks/templates"
 sudo mkdir -p "$TEMPLATE_DIR"
 
 # Generate the template configuration file
-sudo tee "$TEMPLATE_DIR/sfml_onlogic.cbpt" > /dev/null << 'EOF'
+sudo tee "$TEMPLATE_DIR/sfml_onlogic.cbp" > /dev/null << 'EOF'
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_template_file>
 	<Template title="OnLogic SFML Project" category="Multimedia" notice="Pre-configured template with -pthread and SFML bindings for K410 hardware profiles.">
