@@ -78,7 +78,7 @@ int main()
 
             std::cout << "Input 1 = " << inputState
                       << ", Output 0 set to "
-                      << (inputState ? "OFF" : "ON")
+                      << (inputState ? "ON" : "OFF")
                       << ", Result = " << ok
                       << std::endl;
 
