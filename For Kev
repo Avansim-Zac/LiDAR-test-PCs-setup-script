@@ -2,10 +2,11 @@ A standalone test project is installed via : sudo curl -sSL https://raw.githubus
 In dio_projects folder you'll find pse.c, pse.h, heci_types.h
  - these contain the definitions for using the DIO
  - you can use karbon_dio as an example of how to talk to and set pins by referencing the other files
+ - all of these scipts are also here in our git repositiory
 
 
 
 Code::Blocks is installed for IDE
  - Start a project with SFML template
  - import pse.c pse.h and heci_types.h into the project
-  - note pse.c may need to be built separately into pse.o
+  - note pse.c may need to be built separately from the main project
