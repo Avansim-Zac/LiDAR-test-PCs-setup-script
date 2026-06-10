@@ -61,10 +61,13 @@ int main()
         std::cout << "Failed to connect\n";
         return 1;
     }
-
+    
     std::cout << "Connected\n";
     int lastState[7] = {-1,-1,-1,-1,-1,-1,-1};
+    bool bOut
     while (true) {
+        bOut = !bOut;
+        setOutput(fd, 1, bOut);
         for (int i = 0; i<=7; i++){
             int inputState = readInput(fd, i);
 
