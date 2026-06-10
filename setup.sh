@@ -68,7 +68,7 @@ echo "--> Installing OnLogic PSE (IO/CAN/DIO/Serial) Driver..."
 sudo git clone https://github.com/onlogic/ubuntu-elkhart-lake-pse-driver.git pse_heci
 cd ~/pse_heci
 sudo chmod +x install.sh && sudo ./install.sh
-cd - 
+
 # --------------------------------------------------------
 # 5. b. Create a premenant install of the PSE Driver
 # --------------------------------------------------------
@@ -77,6 +77,7 @@ sudo cp pse.ko /lib/modules/
 (uname -r)/kernel/drivers/hid/intel-ish-hid/
 echo 'pse' | sudo tee -a /etc/modules-load.d/modules.conf 
 sudo depmod -a
+cd
 
 # --------------------------------------------------------
 # 6. Multimedia Capabilities (Display & Text Rendering)
