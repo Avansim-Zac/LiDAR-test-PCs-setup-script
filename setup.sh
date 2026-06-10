@@ -80,8 +80,7 @@ cd pse_heci
 cd src
 sudo make all
 cd
-sudo cp pse.ko /lib/modules/
-$(uname -r)/kernel/drivers/hid/intel-ish-hid/
+sudo cp pse.ko /lib/modules/$(uname -r)/kernel/drivers/hid/intel-ish-hid/
 echo 'pse' | sudo tee -a /etc/modules-load.d/modules.conf
 sudo depmod -a
 cd
