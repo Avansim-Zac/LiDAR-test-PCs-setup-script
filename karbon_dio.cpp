@@ -68,7 +68,7 @@ int main()
     while (true) {
         bOut = !bOut;
         setOutput(fd, 1, bOut);
-        for (int i = 0; i<=7; i++){
+        for (int i = 0; i<7; i++){
             int inputState = readInput(fd, i);
 
             if (inputState < 0) {
@@ -86,7 +86,7 @@ int main()
                           << ", Result = " << ok
                           << std::endl;
 
-                lastState = inputState[i];
+                lastState[i] = inputState;
             }
         }
         usleep(100000); // 100 ms polling interval
