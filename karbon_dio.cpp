@@ -64,7 +64,7 @@ int main()
     
     std::cout << "Connected\n";
     int lastState[7] = {-1,-1,-1,-1,-1,-1,-1};
-    bool bOut
+    bool bOut;
     while (true) {
         bOut = !bOut;
         setOutput(fd, 1, bOut);
