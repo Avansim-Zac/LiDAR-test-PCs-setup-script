@@ -63,28 +63,29 @@ int main()
     }
 
     std::cout << "Connected\n";
-    int lastState = -1;
+    int lastState[7] = {-1,-1,-1,-1,-1,-1,-1};
     while (true) {
-        int inputState = readInput(fd, 0);
+        for (int i = 0; i<=7; i++){
+            int inputState = readInput(fd, i);
 
-        if (inputState < 0) {
-            std::cout << "Failed to read input 1\n";
-            break;
-        }
+            if (inputState < 0) {
+                std::cout << "Failed to read input "<< i <<"\n";
+                break;
+            }
 
         // Only update output when the input changes
-        if (inputState != lastState) {
-            bool ok = setOutput(fd, 0, inputState != 0);
+            if (inputState != lastState[i]) {
+                bool ok = setOutput(fd, 0, inputState != 0);
 
-            std::cout << "Input 1 = " << inputState
-                      << ", Output 0 set to "
-                      << (inputState ? "ON" : "OFF")
-                      << ", Result = " << ok
-                      << std::endl;
+                std::cout << "Input 1 = " << inputState
+                          << ", Output " << i << " set to "
+                          << (inputState ? "OFF" : "ON")
+                          << ", Result = " << ok
+                          << std::endl;
 
-            lastState = inputState;
+                lastState = inputState[i];
+            }
         }
-
         usleep(100000); // 100 ms polling interval
     }
 
