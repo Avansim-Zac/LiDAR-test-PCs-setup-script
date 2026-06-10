@@ -69,7 +69,7 @@ sudo git clone https://github.com/onlogic/ubuntu-elkhart-lake-pse-driver.git pse
 cd pse_heci
 sudo chmod +x install.sh && sudo ./install.sh
 cd
-cd /home/lidartestrig3
+cd /home/($USER)
 # --------------------------------------------------------
 # 5. b. Create a premenant install of the PSE Driver
 # --------------------------------------------------------
@@ -125,17 +125,17 @@ echo 'KERNEL=="pse", MODE="0660", GROUP="dialout"' | sudo tee /etc/udev/rules.d/
 # --------------------------------------------------------
 echo "--> Creating DIO test Project..."
 cd
-cd /home/lidartestrig3
+cd /home/($USER)
 sudo mkdir kono_dio_da_project
 cd
-cd /home/lidartestrig3/pse_heci
+cd /home/($USER)/pse_heci
 cd examples
 sudo make
-sudo cp pse.c /home/lidartestrig3/kono_dio_da_project
-sudo cp pse.h /home/lidartestrig3/kono_dio_da_project
-sudo cp heci_types.h /home/lidartestrig3/kono_dio_da_project
+sudo cp pse.c /home/($USER)/kono_dio_da_project
+sudo cp pse.h /home/($USER)/kono_dio_da_project
+sudo cp heci_types.h /home/($USER)/kono_dio_da_project
 cd
-cd /home/lidartestrig3/kono_dio_da_project
+cd /home/($USER)/kono_dio_da_project
 sudo curl -L -o karbon_dio.cpp \
 https://raw.githubusercontent.com/Avansim-Zac/LiDAR-test-PCs-setup-script/main/karbon_dio.cpp
 sudo gcc -c pse.c -o pse.o
