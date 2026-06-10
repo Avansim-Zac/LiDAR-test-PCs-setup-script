@@ -70,7 +70,7 @@ cd pse_heci
 sudo chmod +x install.sh && sudo ./install.sh
 cd
 USER_HOME=$(eval echo ~${SUDO_USER})
-cd USER_HOME
+cd ${USER_HOME}
 # --------------------------------------------------------
 # 5. b. Create a premenant install of the PSE Driver
 # --------------------------------------------------------
@@ -111,9 +111,9 @@ sudo apt-get install -y bluez bluez-tools libbluetooth-dev curl net-tools
 # --------------------------------------------------------
 echo "--> Configuring user permission groups..."
 # Add user to standard hardware pools so you don't run into permission blocks
-sudo usermod -aG audio $USER
-sudo usermod -aG bluetooth $USER
-sudo usermod -aG dialout $USER
+sudo usermod -aG audio $SUDO_USER
+sudo usermod -aG bluetooth $SUDO_USER
+sudo usermod -aG dialout $SUDO_USER
 
 # FIXING DEV PERMISSIONS: OnLogic documentation notes that opening /dev/pse fails unless you are root.
 # Running your C++ application binaries using 'sudo' during development breaks IDE debugging (like VS Code).
@@ -126,17 +126,17 @@ echo 'KERNEL=="pse", MODE="0660", GROUP="dialout"' | sudo tee /etc/udev/rules.d/
 # --------------------------------------------------------
 echo "--> Creating DIO test Project..."
 cd
-cd USER_HOME
+cd ${USER_HOME}
 sudo mkdir kono_dio_da_project
 cd
-cd USER_HOME/pse_heci
+cd ${USER_HOME}/pse_heci
 cd examples
 sudo make
-sudo cp pse.c USER_HOME/kono_dio_da_project
-sudo cp pse.h USER_HOME/kono_dio_da_project
-sudo cp heci_types.h USER_HOME/kono_dio_da_project
+sudo cp pse.c ${USER_HOME}/kono_dio_da_project
+sudo cp pse.h ${USER_HOME}/kono_dio_da_project
+sudo cp heci_types.h ${USER_HOME}/kono_dio_da_project
 cd
-cd USER_HOME/kono_dio_da_project
+cd ${USER_HOME}/kono_dio_da_project
 sudo curl -L -o karbon_dio.cpp \
 https://raw.githubusercontent.com/Avansim-Zac/LiDAR-test-PCs-setup-script/main/karbon_dio.cpp
 sudo gcc -c pse.c -o pse.o
