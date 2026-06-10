@@ -69,7 +69,7 @@ sudo git clone https://github.com/onlogic/ubuntu-elkhart-lake-pse-driver.git pse
 cd pse_heci
 sudo chmod +x install.sh && sudo ./install.sh
 cd
-USER_HOME=$(getent passwd $SUDO_USER | cut -d: -f6)
+USER_HOME=$(eval echo ~${SUDO_USER})
 cd USER_HOME
 # --------------------------------------------------------
 # 5. b. Create a premenant install of the PSE Driver
