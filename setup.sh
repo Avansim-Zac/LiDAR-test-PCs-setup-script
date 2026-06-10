@@ -126,15 +126,16 @@ echo 'KERNEL=="pse", MODE="0660", GROUP="dialout"' | sudo tee /etc/udev/rules.d/
 echo "--> Creating DIO test Project..."
 cd
 cd /home/lidartestrig3
-sudo mkdir dio_project
+sudo mkdir kono_dio_da_project
+cd
 cd /home/lidartestrig3/pse_heci
 cd examples
 sudo make
-sudo cp pse.c /home/lidartestrig3/dio_project
-sudo cp pse.h /home/lidartestrig3/dio_project
-sudo cp heci_types.h /home/lidartestrig3/dio_project
+sudo cp pse.c /home/lidartestrig3/kono_dio_da_project
+sudo cp pse.h /home/lidartestrig3/kono_dio_da_project
+sudo cp heci_types.h /home/lidartestrig3/kono_dio_da_project
 cd
-cd /home/lidartestrig3/dio_project
+cd /home/lidartestrig3/kono_dio_da_project
 sudo curl -L -o karbon_dio.cpp \
 https://raw.githubusercontent.com/Avansim-Zac/LiDAR-test-PCs-setup-script/main/karbon_dio.cpp
 sudo gcc -c pse.c -o pse.o
