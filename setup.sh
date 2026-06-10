@@ -68,6 +68,7 @@ echo "--> Installing OnLogic PSE (IO/CAN/DIO/Serial) Driver..."
 sudo git clone https://github.com/onlogic/ubuntu-elkhart-lake-pse-driver.git pse_heci
 cd pse_heci
 sudo chmod +x install.sh && sudo ./install.sh
+cd
 cd /home/lidartestrig3
 # --------------------------------------------------------
 # 5. b. Create a premenant install of the PSE Driver
