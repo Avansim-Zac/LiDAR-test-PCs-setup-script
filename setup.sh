@@ -79,8 +79,6 @@ sudo apt-get install linux-headers-$(uname -r)
 cd pse_heci
 cd src
 sudo make all
-sudo insmod pse.ko && dmesg
-cd
 sudo cp pse.ko /lib/modules/
 $(uname -r)/kernel/drivers/hid/intel-ish-hid/
 echo 'pse' | sudo tee -a /etc/modules-load.d/modules.conf$ sudo depmod -a
