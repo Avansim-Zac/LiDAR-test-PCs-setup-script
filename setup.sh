@@ -83,8 +83,7 @@ sudo insmod pse.ko && dmesg
 cd
 sudo cp pse.ko /lib/modules/
 $(uname -r)/kernel/drivers/hid/intel-ish-hid/
-echo 'pse' | sudo tee -a /etc/modules-load.d/modules.conf 
-sudo depmod -a
+echo 'pse' | sudo tee -a /etc/modules-load.d/modules.conf$ sudo depmod -a
 cd
 
 # --------------------------------------------------------
