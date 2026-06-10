@@ -124,6 +124,7 @@ echo 'KERNEL=="pse", MODE="0660", GROUP="dialout"' | sudo tee /etc/udev/rules.d/
 # 10. Create DIO test Project
 # --------------------------------------------------------
 echo "--> Creating DIO test Project..."
+cd
 sudo mkdir dio_project
 cd /home/lidartestrig3/pse_heci
 cd examples
