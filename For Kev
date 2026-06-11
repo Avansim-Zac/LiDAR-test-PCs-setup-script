@@ -10,8 +10,10 @@ In Home/$USER/kono_dio_da_projects you'll find pse.c, pse.h, heci_types.h
 
 Code::Blocks is installed for IDE
  - Start a project with SFML template
- - import pse.c pse.h and heci_types.h into the project
-  - note pse.c may need to be built separately from the main project
+ - Copy from kono_dio_da_projects pse.c pse.h amd heci_types.h into your project folder
+ - import pse.c pse.h and heci_types.h into the project by right clicking on the project in the left hand panel and select add files
+  - note when compiling pse.c may need to be built separately from the main project (Code::Blocks should handle this gracefully)
+   - if code blocks doesn't build pse.c correctly, then just run in terminal while in the projects directory gcc pse.c -c pse.o -o
  - there are some other SFML linkers that aren't added by this template:
   - sfml-network
   - sfml-audio
