@@ -1,4 +1,6 @@
 A standalone test project is installed via : sudo curl -sSL https://raw.githubusercontent.com/Avansim-Zac/LiDAR-test-PCs-setup-script/main/setup.sh | sudo bash
+The test project is preinstallled on all 4 units
+
 In Home/$USER/kono_dio_da_projects you'll find pse.c, pse.h, heci_types.h
  - these contain the definitions for using the DIO
  - you can use karbon_dio as an example of how to talk to and set pins by referencing the other files
