@@ -1,5 +1,5 @@
 A standalone test project is installed via : sudo curl -sSL https://raw.githubusercontent.com/Avansim-Zac/LiDAR-test-PCs-setup-script/main/setup.sh | sudo bash
-In dio_projects folder you'll find pse.c, pse.h, heci_types.h
+In Home/$USER/kono_dio_da_projects you'll find pse.c, pse.h, heci_types.h
  - these contain the definitions for using the DIO
  - you can use karbon_dio as an example of how to talk to and set pins by referencing the other files
  - all of these scipts are also here in our git repositiory
@@ -13,3 +13,25 @@ Code::Blocks is installed for IDE
  - there are some other SFML linkers that aren't added by this template:
   - sfml-network
   - sfml-audio
+
+Running the test script
+in cmd/terminal enter
+cd ~/kono_dio_da_project
+sudo ./karbon.dio
+
+If the application shows the message "failed to connect, are you running as root?" This means the driver has failed to load on boot, to reload it you can simply run these commands:
+cd ~/pse_heci
+sudo ./install.sh
+
+This will reboot the driver for this session (until the unit is turned off)
+If you run these commands it should retry making a pernament driver that is loaded on boot:
+sudo apt-get install build-essential flex bison libssl-dev libelf-dev
+sudo apt-get install linux-headers-$(uname -r)
+echo 'pse' | sudo tee -a /etc/modules-load.d/modules.conf
+sudo depmod -a
+
+
+When the karbon_dio app is running the unit should:
+ACK led be constantly blinking
+Control led will turn on whenever any button is set to on
+The terminal will update with a message everytime it detects an input change saying which input changed, what it changed to, and that output 0 is now 0 or 1
