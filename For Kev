@@ -28,7 +28,7 @@ in cmd/terminal enter
 cd ~/kono_dio_da_project
 sudo ./karbon.dio
 
-If the application shows the message "failed to connect, are you running as root?" This means the driver has failed to load on boot or nothing is plugged into the DIO port on the karbon410
+If the test script shows the message "failed to connect, are you running as root?" This means the driver has failed to load on boot or nothing is plugged into the DIO port on the karbon410
 To reload the driver you can simply run these commands:
 cd ~/pse_heci
 sudo ./install.sh
