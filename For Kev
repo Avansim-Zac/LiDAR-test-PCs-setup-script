@@ -12,18 +12,24 @@ Code::Blocks is installed for IDE
  - Start a project with SFML template
  - Copy from kono_dio_da_projects pse.c pse.h amd heci_types.h into your project folder
  - import pse.c pse.h and heci_types.h into the project by right clicking on the project in the left hand panel and select add files
-  - note when compiling pse.c may need to be built separately from the main project (Code::Blocks should handle this gracefully)
+  - note when compiling, pse.c may need to be built separately from the main project (Code::Blocks should handle this gracefully)
    - if code blocks doesn't build pse.c correctly, then just run in terminal while in the projects directory gcc -c pse.c -o pse.o
  - there are some other SFML linkers that aren't added by this template:
   - sfml-network
   - sfml-audio
+   -these can be added through the project tab on the top ribbon, and selecting options. Be sure on the left panel that your project itself is selected not debug or any other child of the project.
+ - SFML template comes with a really simple base script that creates a window with the logo.
+  - The SFML website has lots of good resources/documentation: https://www.sfml-dev.org/
+ - When testing the app you make while in code::blocks be aware that some stuff might need root access to work. It's better to compile in code::blocks (if it's behaving), and keep a terminal open to run the project.
+  - The app is created in /[Project Name]/bin/Debug/
 
 Running the test script
 in cmd/terminal enter
 cd ~/kono_dio_da_project
 sudo ./karbon.dio
 
-If the application shows the message "failed to connect, are you running as root?" This means the driver has failed to load on boot, to reload it you can simply run these commands:
+If the application shows the message "failed to connect, are you running as root?" This means the driver has failed to load on boot or nothing is plugged into the DIO port on the karbon410
+To reload the driver you can simply run these commands:
 cd ~/pse_heci
 sudo ./install.sh
 
@@ -35,7 +41,7 @@ echo 'pse' | sudo tee -a /etc/modules-load.d/modules.conf
 sudo depmod -a
 
 
-When the karbon_dio app is running the unit should:
+When the karbon_dio app is running the:
 ACK led be constantly blinking
 Control led will turn on whenever any button is set to on
 The terminal will update with a message everytime it detects an input change saying which input changed, what it changed to, and that output 0 is now 0 or 1
