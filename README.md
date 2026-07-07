@@ -8,6 +8,7 @@ sudo apt install curl -y
 
 sudo curl -sSL https://raw.githubusercontent.com/Avansim-Zac/LiDAR-test-PCs-setup-script/main/setup.sh | sudo bash
 
+Disabled Sleep states for Karbon: sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
 
 
 
