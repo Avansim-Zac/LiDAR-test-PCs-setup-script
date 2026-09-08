@@ -1,0 +1,10 @@
+{
+ "op_mode" : "Standalone",
+ "simple" : false,
+ "cab_a" : true,
+ "serial" : "ABC1234",
+ "log" : 2,
+ "my_ip" : 192.168.1.206,
+ "other_ip" : 192.168.1.207,
+ "sensor_ip" : 192.168.1.2
+}
