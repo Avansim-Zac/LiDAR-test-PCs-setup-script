@@ -87,40 +87,9 @@ int main()
             blinkPin = false;
             lastState[3] = twilightState;
         }
-        for (int i =0;i<7;i++)
-        {
-            if (i == 3)
-            {
-                continue;
-            }
-            else
-            {
-                int inputState = readInput(fd, i);
-
-                if (inputState < 0) 
-                {
-                    std::cout << "Failed to read input "<< i <<"\n";
-                    continue;
-                }
-
-                if (inputState != lastState[i])
-                {
-                    bool ok = inputState == 0;
-                    setOutput(fd, checkPin ? 2 : 0, ok ? 1 : 0);
-                
-                    std::cout << "Input " << i << " = " << inputState
-                                << ", Output " << (checkPin ? 2 : 0) << " set to "
-                                << (inputState ? "OFF" : "ON")
-                                << ", Result = " << ok
-                                << std::endl;
-                    lastState[i] = inputState;
-                }
-            }
-        }
+        
         bOut = !bOut;
         setOutput(fd, blinkPin ? 3 : 1, bOut);
-        setOutput(fd, checkPin ? 0 : 2, false);
-        setOutput(fd, blinkPin ? 1 : 3, false);
         usleep(100000); // 100 ms polling interval
     }
     close(fd);
