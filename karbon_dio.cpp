@@ -98,7 +98,8 @@ int main()
                 continue;
             }
 
-            if (i != 3 && inputState != lastState[i]) {
+            if (i != 3 && inputState != lastState[i]) 
+            {
                 bool ok = setOutput(fd, checkPin, inputState != 0);
 
                 std::cout << "Input " << i << " = " << inputState
