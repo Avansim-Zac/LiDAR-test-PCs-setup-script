@@ -76,14 +76,14 @@ int main()
         int twilightState = readInput(fd, 3);
         if (twilightState == 0 && twilightState != lastState[3])
         {
-            std::cout << "Twlight on" << twilightState << std::endl;
+            std::cout << "Twlight on " << twilightState << std::endl;
             checkPin = true;
             blinkPin = true;
             lastState[3] = twilightState;
         }
         else if (twilightState == 1 && twilightState != lastState[3])
         {
-            std::cout << "Twlight off" << twilightState << std::endl;
+            std::cout << "Twlight off " << twilightState << std::endl;
             checkPin = false;
             blinkPin = false;
             lastState[3] = twilightState;
