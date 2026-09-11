@@ -75,13 +75,13 @@ int main()
         int twilightState = readInput(fd, 3);
         if (twilightState == 0)
         {
-            std::cout "Twlight on\n";
+            std::cout << "Twlight on" << std::endl;
             checkPin = true;
             blinkPin = true;
         }
         else
         {
-            std::cout "Twlight off\n";
+            std::cout << "Twlight off" << std::endl;
             checkPin = false;
             blinkPin = false;
         }
@@ -101,7 +101,7 @@ int main()
                 setOutput(fd, checkPin ? 2 : 0, ok ? 1 : 0);
                 
                 std::cout << "Input " << i << " = " << inputState
-                            << ", Output " << checkPin ? 2 : 0 << " set to "
+                            << ", Output " << (checkPin ? 2 : 0) << " set to "
                             << (inputState ? "OFF" : "ON")
                             << ", Result = " << ok
                             << std::endl;
@@ -110,7 +110,7 @@ int main()
             }
         }
         bOut = !bOut;
-        setOutput(fd, blinkPin ? 1 : 3, bOut);
+        setOutput(fd, blinkPin ? 3 : 1, bOut);
         usleep(100000); // 100 ms polling interval
     }
     close(fd);
