@@ -81,11 +81,15 @@ int main()
                 if (dimSwitch == 0) {
                     blinkPin = 3;
                     checkPin = 2;
+                    setOutput(fd, 0, false);
+                    setOutput(fd, 1, false);
                 }
                 else
                 {
                     blinkPin = 1;
                     checkPin = 0;
+                    setOutput(fd, 2, false);
+                    setOutput(fd, 3, false);
                 }
                 lastDimSwitch = dimSwitch;
             }
