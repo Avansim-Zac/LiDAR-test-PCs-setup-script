@@ -74,7 +74,20 @@ int main()
             
         int inputState = readInput(fd, 3);
         std::cout << "input 3 = " << inputState << std::endl; 
-
+        if (inputState == 0)
+        {
+            setOutput(fd,0, false);
+            setOutput(fd,1, false);
+            setOutput(fd,2, true);
+            setOutput(fd,3, true);
+        }
+        else
+        {
+            setOutput(fd,2, false);
+            setOutput(fd,3, false);
+            setOutput(fd,0, true);
+            setOutput(fd,1, true);
+        }
         usleep(100000); // 100 ms polling interval
     }
     close(fd);
