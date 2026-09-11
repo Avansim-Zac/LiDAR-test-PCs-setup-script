@@ -83,7 +83,7 @@ int main()
             if (i == 3){
     
                 if (inputState >= 0 && inputState != lastDimSwitch) {
-                    if (dimSwitch == 0) {
+                    if (inputState == 0) {
                         blinkPin = 3;
                         checkPin = 2;
                         setOutput(fd, 0, false);
