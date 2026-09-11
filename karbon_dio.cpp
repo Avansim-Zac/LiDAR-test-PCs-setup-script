@@ -75,40 +75,44 @@ int main()
         int twilightState = readInput(fd, 3);
         if (twilightState == 0 && twilightState != lastState[3])
         {
-            std::cout << "Twlight on" << std::endl;
+            std::cout << "Twlight on" << twilightState << std::endl;
             checkPin = true;
             blinkPin = true;
             lastState[3] = twilightState;
         }
         else if (twilightState == 1 && twilightState != lastState[3])
         {
-            std::cout << "Twlight off" << std::endl;
+            std::cout << "Twlight off" << twilightState << std::endl;
             checkPin = false;
             blinkPin = false;
             lastState[3] = twilightState;
         }
         for (int i =0;i<7;i++)
         {
-            int inputState = readInput(fd, i);
-
-            if (inputState < 0) 
+            if (i == 3)
             {
-                std::cout << "Failed to read input "<< i <<"\n";
                 continue;
             }
-
-            if (inputState != lastState[i])
+            else
             {
-                bool ok = inputState == 0;
-                setOutput(fd, checkPin ? 2 : 0, ok ? 1 : 0);
-                
-                std::cout << "Input " << i << " = " << inputState
-                            << ", Output " << (checkPin ? 2 : 0) << " set to "
-                            << (inputState ? "OFF" : "ON")
-                            << ", Result = " << ok
-                            << std::endl;
-                if (i !=3)
+                int inputState = readInput(fd, i);
+
+                if (inputState < 0) 
                 {
+                    std::cout << "Failed to read input "<< i <<"\n";
+                    continue;
+                }
+
+                if (inputState != lastState[i])
+                {
+                    bool ok = inputState == 0;
+                    setOutput(fd, checkPin ? 2 : 0, ok ? 1 : 0);
+                
+                    std::cout << "Input " << i << " = " << inputState
+                                << ", Output " << (checkPin ? 2 : 0) << " set to "
+                                << (inputState ? "OFF" : "ON")
+                                << ", Result = " << ok
+                                << std::endl;
                     lastState[i] = inputState;
                 }
             }
