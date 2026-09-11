@@ -66,28 +66,52 @@ int main()
     int lastState[7] = {-1,-1,-1,-1,-1,-1,-1};
     bool bOut = false;
 
-    int lastDimSwitch = -1;
-    int blinkPin = 1;
     int checkPin = 0;
+    int blinkPin = 1;
+
 
     while (true) {
             
-        int inputState = readInput(fd, 3);
-        std::cout << "input 3 = " << inputState << std::endl; 
-        if (inputState == 0)
+        int twilightState = readInput(fd, 3);
+        if (twilightState == 0)
         {
             setOutput(fd,0, false);
             setOutput(fd,1, false);
-            setOutput(fd,2, true);
-            setOutput(fd,3, true);
+            checkPin = 2;
+            blinkPin = 3;
+   
         }
         else
         {
             setOutput(fd,2, false);
             setOutput(fd,3, false);
-            setOutput(fd,0, true);
-            setOutput(fd,1, true);
+            checkPin = 0;
+            blinkPin = 1;
         }
+        for (int i =0;i<7;i++)
+        {
+            int inputState = readInput(fd, i);
+
+            if (inputState < 0) 
+            {
+                std::cout << "Failed to read input "<< i <<"\n";
+                continue;
+            }
+
+            if (i != 3 && inputState != lastState[i]) {
+                bool ok = setOutput(fd, checkPin, inputState != 0);
+
+                std::cout << "Input " << i << " = " << inputState
+                            << ", Output " << checkPin << " set to "
+                            << (inputState ? "ON" : "OFF")
+                            << ", Result = " << ok
+                            << std::endl;
+
+                lastState[i] = inputState;
+            }
+        }
+        bOut = !bOut;
+        setOutput(fd, blinkPin, bOut);
         usleep(100000); // 100 ms polling interval
     }
     close(fd);
