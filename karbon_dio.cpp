@@ -80,31 +80,30 @@ int main()
                 break;
             }
             
-            if (inputState == 3){
-                int dimSwitch = readInput(fd, 3);
+            if (i == 3){
     
-                if (dimSwitch >= 0 && dimSwitch != lastDimSwitch) {
+                if (inputState >= 0 && inputState != lastDimSwitch) {
                     if (dimSwitch == 0) {
                         blinkPin = 3;
                         checkPin = 2;
                         setOutput(fd, 0, false);
                         setOutput(fd, 1, false);
                     }
-                    else if (dimSwitch == 1)
+                    else if (inputState == 1)
                     {
                         blinkPin = 1;
                         checkPin = 0;
                         setOutput(fd, 2, false);
                         setOutput(fd, 3, false);
                     }
-                    lastDimSwitch = dimSwitch;
+                    lastDimSwitch = inputState;
                 }
             }
     
 
 
         // Only update output when the input changes
-            if (inputState != 3){
+            if (i != 3){
                 if (inputState != lastState[i]) {
                     bool ok = setOutput(fd, checkPin, inputState != 0);
     
