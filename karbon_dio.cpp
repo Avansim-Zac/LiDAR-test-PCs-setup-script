@@ -65,11 +65,30 @@ int main()
     std::cout << "Connected\n";
     int lastState[7] = {-1,-1,-1,-1,-1,-1,-1};
     bool bOut = false;
+
+    int lastDimSwitch = -1;
+    int blinkPin = 1;
+    int checkPin = 0;
+
     while (true) {
-        bOut = !bOut;
-        setOutput(fd, 1, bOut);
+
         for (int i = 0; i<7; i++){
             int inputState = readInput(fd, i);
+
+            int dimSwitch = readInput(fd, 3);
+
+            if (dimSwitch >= 0 && dimSwitch != lastDimSwitch) {
+                if (dimSwitch == 0) {
+                    blinkPin = 3;
+                    checkPin = 2;
+                }
+                else
+                {
+                    blinkPin = 1;
+                    checkPin = 0;
+                }
+                lastDimSwitch = dimSwitch;
+            }
 
             if (inputState < 0) {
                 std::cout << "Failed to read input "<< i <<"\n";
@@ -78,10 +97,10 @@ int main()
 
         // Only update output when the input changes
             if (inputState != lastState[i]) {
-                bool ok = setOutput(fd, 0, inputState != 0);
+                bool ok = setOutput(fd, checkPin, inputState != 0);
 
                 std::cout << "Input 1 = " << inputState
-                          << ", Output " << i << " set to "
+                          << ", Output " << checkPin << " set to "
                           << (inputState ? "OFF" : "ON")
                           << ", Result = " << ok
                           << std::endl;
@@ -89,10 +108,10 @@ int main()
                 lastState[i] = inputState;
             }
         }
+        bOut = !bOut;
+        setOutput(fd, blinkPin, bOut);
         usleep(100000); // 100 ms polling interval
     }
-
     close(fd);
-
     return 0;
 }
