@@ -71,54 +71,10 @@ int main()
     int checkPin = 0;
 
     while (true) {
-
-        for (int i = 0; i<7; i++){
-            int inputState = readInput(fd, i);
             
-            if (inputState < 0) {
-                std::cout << "Failed to read input "<< i <<"\n";
-                break;
-            }
-            
-            if (i == 3){
-    
-                if (inputState >= 0 && inputState != lastDimSwitch) {
-                    if (inputState == 0) {
-                        blinkPin = 3;
-                        checkPin = 2;
-                        setOutput(fd, 0, false);
-                        setOutput(fd, 1, false);
-                    }
-                    else if (inputState == 1)
-                    {
-                        blinkPin = 1;
-                        checkPin = 0;
-                        setOutput(fd, 2, false);
-                        setOutput(fd, 3, false);
-                    }
-                    lastDimSwitch = inputState;
-                }
-            }
-    
+        int inputState = readInput(fd, 3);
+        std::cout << "input 3 = " << inputState << std::endl; 
 
-
-        // Only update output when the input changes
-            if (i != 3){
-                if (inputState != lastState[i]) {
-                    bool ok = setOutput(fd, checkPin, inputState != 0);
-    
-                    std::cout << "Input 1 = " << inputState
-                              << ", Output " << checkPin << " set to "
-                              << (inputState ? "OFF" : "ON")
-                              << ", Result = " << ok
-                              << std::endl;
-    
-                    lastState[i] = inputState;
-                }
-            }
-        }
-        bOut = !bOut;
-        setOutput(fd, blinkPin, bOut);
         usleep(100000); // 100 ms polling interval
     }
     close(fd);
