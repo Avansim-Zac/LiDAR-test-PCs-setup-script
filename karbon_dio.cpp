@@ -73,21 +73,19 @@ int main()
     while (true) {
             
         int twilightState = readInput(fd, 3);
-        if (twilightState == 0 && lastState[3] != twilightState)
+        if (twilightState == 0)
         {
             setOutput(fd,0, false);
             setOutput(fd,1, false);
             checkPin = 2;
             blinkPin = 3;
-            lastState[3] = twilightState;
         }
-        else if (twilightState == 1 && lastState[3] != twilightState)
+        else if (twilightState == 1)
         {
             setOutput(fd,2, false);
             setOutput(fd,3, false);
             checkPin = 0;
             blinkPin = 1;
-            lastState[3] = twilightState;
         }
         for (int i =0;i<7;i++)
         {
@@ -101,7 +99,7 @@ int main()
 
             if (i != 3 && inputState != lastState[i]) 
             {
-                bool ok = setOutput(fd, checkPin, inputState != 0);
+                bool ok = setOutput(fd, checkPin, inputState == 0);
 
                 std::cout << "Input " << i << " = " << inputState
                             << ", Output " << checkPin << " set to "
