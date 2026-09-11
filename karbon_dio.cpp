@@ -99,7 +99,7 @@ int main()
 
             if (inputState != lastState[i])
             {
-                bool ok = inputState != 0;
+                bool ok = inputState == 0;
                 setOutput(fd, checkPin ? 2 : 0, ok ? 1 : 0);
                 
                 std::cout << "Input " << i << " = " << inputState
