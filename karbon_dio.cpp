@@ -55,7 +55,8 @@ int readInput(int fd, uint8_t pin)
 int main()
 {
     int fd = pse_client_connect();
-
+    setOutput(fd,0,false);
+    setOutput(fd,2,false);
     if(fd <= 0)
     {
         std::cout << "Failed to connect\n";
@@ -90,6 +91,7 @@ int main()
         
         bOut = !bOut;
         setOutput(fd, blinkPin ? 3 : 1, bOut);
+        setOutput(fd, blinkPin ? 1 : 3, !bOut);
         usleep(100000); // 100 ms polling interval
     }
     close(fd);
