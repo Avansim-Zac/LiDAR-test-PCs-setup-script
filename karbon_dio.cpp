@@ -73,20 +73,21 @@ int main()
     while (true) {
             
         int twilightState = readInput(fd, 3);
-        if (twilightState == 0)
+        if (twilightState == 0 && lastState[3] != twilightState)
         {
             setOutput(fd,0, false);
             setOutput(fd,1, false);
             checkPin = 2;
             blinkPin = 3;
-   
+            lastState[3] = twilightState;
         }
-        else
+        else if (twilightState == 1 && lastState[3] != twilightState)
         {
             setOutput(fd,2, false);
             setOutput(fd,3, false);
             checkPin = 0;
             blinkPin = 1;
+            lastState[3] = twilightState;
         }
         for (int i =0;i<7;i++)
         {
