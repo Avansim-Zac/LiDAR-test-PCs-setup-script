@@ -143,6 +143,13 @@ sudo gcc -c pse.c -o pse.o
 sudo g++ karbon_dio.cpp pse.o -o karbon_dio
 echo "--> Created DIO test Project..."
 
+# --------------------------------------------------------
+# 11. Disable sleep states
+# --------------------------------------------------------
+cd
+echo "--> Disbaling Sleep States..."
+sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
+
 echo "========================================================"
 echo " Setup complete! A system REBOOT is required."
 echo "========================================================"
