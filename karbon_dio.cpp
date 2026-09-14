@@ -95,23 +95,23 @@ int main()
         {
             setOutput(fd,checkPin,true);
         }
-        else if ((readInput(fd, 1) == 0)
+        else if (readInput(fd, 1) == 0)
         {
             setOutput(fd,checkPin,true);
         }
-        else if ((readInput(fd, 2) == 0)
+        else if (readInput(fd, 2) == 0)
         {
             setOutput(fd,checkPin,true);
         }
-        else if ((readInput(fd, 4) == 0)
+        else if (readInput(fd, 4) == 0)
         {
             setOutput(fd,checkPin,true);
         }
-        else if ((readInput(fd, 5) == 0)
+        else if (readInput(fd, 5) == 0)
         {
             setOutput(fd,checkPin,true);
         }
-        else if ((readInput(fd, 6) == 0)
+        else if (readInput(fd, 6) == 0)
         {
             setOutput(fd,checkPin,true);
         }
