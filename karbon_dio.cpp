@@ -74,6 +74,7 @@ int main()
 
     while (true) {
         bool anyActive = false; // recomputed fresh each pass
+        bool forceUpdate = false;
 
         for (int i = 0; i < 7; i++) {
             int inputState = readInput(fd, i);
@@ -102,6 +103,7 @@ int main()
                         setOutput(fd, 3, true);
                     }
                     lastDimSwitch = dimSwitch;
+                    forceUpdate = true;
                 }
                 continue; // input 3 doesn't participate in the mirror aggregate
             }
@@ -115,7 +117,7 @@ int main()
         }
 
         // Only touch the output when the combined state actually changes
-        if (anyActive != lastAnyActive) {
+        if (anyActive != lastAnyActive || forceUpdate) {
             bool ok = setOutput(fd, checkPin, !anyActive);
 
             std::cout << "Combined switch state = " << (anyActive ? "ACTIVE" : "IDLE")
