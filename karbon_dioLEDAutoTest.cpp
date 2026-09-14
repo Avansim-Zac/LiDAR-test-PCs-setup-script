@@ -235,6 +235,7 @@ int main()
             setOutput(fd,i,lOff);
         }    
         std::cout << "Test complete, repeating for aknowledge LED" << std::endl;
+        break;
     }
     close(fd);
     return 0;
