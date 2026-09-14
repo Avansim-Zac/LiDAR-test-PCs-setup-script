@@ -83,7 +83,7 @@ int main()
         usleep(1000000);
         std::cout << "Turning on Control light" << std::endl;
         usleep(2000000);
-        setOutput(fd,0,);
+        setOutput(fd,0,lOn);
         usleep(5000000);
         std::cout << "Twlight is off" << std::endl;
         usleep(1000000);
