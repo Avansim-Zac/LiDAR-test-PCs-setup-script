@@ -66,98 +66,61 @@ int main()
     int lastState[7] = {-1,-1,-1,-1,-1,-1,-1};
     bool bOut = false;
 
-    bool checkPin = false;
-    bool blinkPin = false;
-    bool aOut = false;
-    bool lOn = false;
-    bool lOff = true;
+    int lastDimSwitch = -1;
+    int blinkPin = 1;
+    int checkPin = 0;
 
-    while (true) {     
-        
-        for (int i = 0;i<4;i++)
-        {
-            setOutput(fd,i,lOff);
-        }       
+    while (true) {
 
-        std::cout << "Starting Test" << std::endl;
-        usleep(1000000);
-        std::cout << "Turning on Control light" << std::endl;
-        usleep(2000000);
-        setOutput(fd,0,lOn);
-        usleep(5000000);
-        std::cout << "Twlight is off" << std::endl;
-        usleep(1000000);
-        std::cout << "Turning twlight on" << std::endl;
-        usleep(2000000);
-        setOutput(fd,2,lOn);
-        usleep(5000000);
-        std::cout << "Turning bright off" << std::endl;
-        usleep(2000000);
-        setOutput(fd,0,lOff);
-        usleep(5000000);
+        for (int i = 0; i < 7; i++) {
+            int inputState = readInput(fd, i);
 
-        std::cout << "Turning twlight off" << std::endl;
-        setOutput(fd,2,lOff);
-        usleep(5000000);
-        std::cout << "Starting bright strobe for 10 cycles" << std::endl;
-        usleep(2000000);
+            if (inputState < 0) {
+                std::cout << "Failed to read input " << i << "\n";
+                break;
+            }
 
-        for (int a = 0;a<10;a++)
-        {
-            setOutput(fd,0,lOn);
-            usleep(100000);
-            setOutput(fd,0,lOff);
-            usleep(100000);
+            if (i == 3) {
+                int dimSwitch = inputState;
+
+                if (dimSwitch != lastDimSwitch) {
+                    if (dimSwitch == 0) {
+                        std::cout << "Twilight active" std::endl;
+                        blinkPin = 3;
+                        checkPin = 2;
+                        setOutput(fd, 0, true);
+                        setOutput(fd, 1, true);
+                    }
+                    else if (dimSwitch == 1) {
+                        std::cout << "Twilight disabled" std::endl;
+                        blinkPin = 1;
+                        checkPin = 0;
+                        setOutput(fd, 2, true);
+                        setOutput(fd, 3, true);
+                    }
+                    lastDimSwitch = dimSwitch;
+                }
+            }
+
+            // Only update output when the input changes
+            if (i != 3) {
+                if (inputState != lastState[i]) {
+                    bool ok = setOutput(fd, checkPin, inputState);
+
+                    std::cout << "Input " << i << " = " << inputState
+                              << ", Output " << checkPin << " set to "
+                              << (inputState ? "ON" : "OFF")
+                              << ", Result = " << ok
+                              << std::endl;
+
+                    lastState[i] = inputState;
+                }
+            }
         }
-        std::cout << "Bright strobe for 10 cycles complete" << std::endl;
-        usleep(1000000);
-        std::cout << "Starting dim strobe for 10 cycles" << std::endl;
-        usleep(2000000);
 
-        for (int b = 0;b<10;b++)
-        {
-            setOutput(fd,2,lOn);
-            usleep(100000);
-            setOutput(fd,2,lOff);
-            usleep(100000);
-        }
-        std::cout << "Dim strobe for 10 cycles complete" << std::endl;
-        usleep(1000000);
-        std::cout << "Starting alternating strobe for 10 cycles, starting dim" << std::endl;
-        usleep(2000000);
-        for (int b = 0;b<10;b++)
-        {
-            setOutput(fd,2,lOn);
-            usleep(100000);
-            setOutput(fd,2,lOff);
-            setOutput(fd,0,lOn);
-            usleep(100000);
-            setOutput(fd,0,lOff);
-            usleep(100000);
-        }
-        std::cout << "Alternating strobe for 10 cycles complete" << std::endl;
-        usleep(1000000);
-        std::cout << "Starting Dim toggle strobe for 10 cycles, starting Bright" << std::endl;
-        usleep(2000000);
-        setOutput(fd,0,lOn);
-        for (int b = 0;b<10;b++)
-        {
-            usleep(100000);
-            setOutput(fd,2,lOn);
-            usleep(100000);
-            setOutput(fd,2,lOff);
-        }
-        setOutput(fd,0,lOff);
-        usleep(2000000);
-        std::cout << "Dim toggle strobe for 10 cycles complete" << std::endl;
-        usleep(2000000);
-        for (int i = 0;i<4;i++)
-        {
-            setOutput(fd,i,lOff);
-        }    
-        std::cout << "Test complete, auto exit in 2 seconds" << std::endl;
-        usleep(2000000);
-        break;
+        bOut = !bOut;
+        setOutput(fd, blinkPin, bOut);
+        usleep(100000); // 100 ms polling interval
     }
     close(fd);
     return 0;
