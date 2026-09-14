@@ -5,6 +5,7 @@ extern "C" {
 
 #include <iostream>
 #include <unistd.h>
+#include <chrono>
 
 bool setOutput(int fd, uint8_t pin, bool state)
 {
@@ -65,6 +66,9 @@ int main()
     std::cout << "Connected\n";
     int lastState[7] = {-1,-1,-1,-1,-1,-1,-1};
     bool bOut = false;
+    auto lastBlinkChange = std::chrono::steady_clock::now();
+    const auto blinkOnDuration  = std::chrono::milliseconds(200);
+    const auto blinkOffDuration = std::chrono::milliseconds(100);
 
     int lastDimSwitch = -1;
     int blinkPin = 1;
@@ -128,9 +132,18 @@ int main()
             lastAnyActive = anyActive;
         }
 
-        bOut = !bOut;
-        setOutput(fd, blinkPin, bOut);
-        usleep(100000); // 100 ms polling interval
+        // Asymmetric blink: 200ms on, 100ms off
+        auto now = std::chrono::steady_clock::now();
+        auto elapsed = now - lastBlinkChange;
+        auto threshold = bOut ? blinkOnDuration : blinkOffDuration;
+
+        if (elapsed >= threshold) {
+            bOut = !bOut;
+            setOutput(fd, blinkPin, bOut);
+            lastBlinkChange = now;
+        }
+
+        usleep(10000); // 10 ms main loop tick, keeps switch polling responsive
     }
     close(fd);
     return 0;
