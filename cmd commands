@@ -1,5 +1,0 @@
-mkdir dio_project
-cd ~/dio_project
-cc -c pse.c -o pse.o
-g++ karbon_dio.cpp pse.o -o karbon_dio
-sudo ./karbon_dio
