@@ -85,14 +85,14 @@ int main()
 
                 if (dimSwitch != lastDimSwitch) {
                     if (dimSwitch == 0) {
-                        std::cout << "Twilight active" std::endl;
+                        std::cout << "Twilight active" << std::endl;
                         blinkPin = 3;
                         checkPin = 2;
                         setOutput(fd, 0, true);
                         setOutput(fd, 1, true);
                     }
                     else if (dimSwitch == 1) {
-                        std::cout << "Twilight disabled" std::endl;
+                        std::cout << "Twilight disabled" << std::endl;
                         blinkPin = 1;
                         checkPin = 0;
                         setOutput(fd, 2, true);
