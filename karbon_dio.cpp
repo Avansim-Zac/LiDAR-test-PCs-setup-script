@@ -69,7 +69,7 @@ int main()
     int lastDimSwitch = -1;
     int blinkPin = 1;
     int checkPin = 0;
-    bool lCon = false
+    bool lCon = false;
 
     while (true) {
         lCon = false
@@ -106,7 +106,7 @@ int main()
             // Only update output when the input changes
             if (i != 3) {
                 if (inputState)
-                {lCon = true}
+                {lCon = true;}
 
                 if (!lCon)
                 {
