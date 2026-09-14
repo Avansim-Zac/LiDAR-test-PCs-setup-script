@@ -72,7 +72,7 @@ int main()
     bool lCon = false;
 
     while (true) {
-        lCon = false
+        lCon = false;
         for (int i = 0; i < 7; i++) {
             int inputState = readInput(fd, i);
 
