@@ -11,9 +11,13 @@ sudo curl -sSL https://raw.githubusercontent.com/Avansim-Zac/LiDAR-test-PCs-setu
 Disabled Sleep states for Karbon: sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
 
 To rebuild the karbon_dio test script use the following commands to grab either input test, or auto led test:
+
 Auto:
+
 sudo curl -sSL https://raw.githubusercontent.com/Avansim-Zac/LiDAR-test-PCs-setup-script/main/karbon_dioLEDAutoTestRebuild.sh | sudo bash
+
 Input:
+
 sudo curl -sSL https://raw.githubusercontent.com/Avansim-Zac/LiDAR-test-PCs-setup-script/main/karbon_dioRebuild.sh | sudo bash
 
 Below is a reference of the IO pins available for external hardware. 
