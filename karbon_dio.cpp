@@ -92,32 +92,32 @@ int main()
         
         if (readInput(fd, 0) == 0)
         {
-            std::cout << "Switch 0 On - Control light " << twilightState ? "dim" : "bright" << std::endl;
+            std::cout << "Switch 0 On - Control light " << (twilightState ? "dim" : "bright") << std::endl;
             setOutput(fd,checkPin,true);
         }
         else if (readInput(fd, 1) == 0)
         {
-            std::cout << "Switch 1 On - Control light " << twilightState ? "dim" : "bright" << std::endl;
+            std::cout << "Switch 1 On - Control light " << (twilightState ? "dim" : "bright") << std::endl;
             setOutput(fd,checkPin,true);
         }
         else if (readInput(fd, 2) == 0)
         {
-            std::cout << "Switch 2 On - Control light " << twilightState ? "dim" : "bright" << std::endl;
+            std::cout << "Switch 2 On - Control light " << (twilightState ? "dim" : "bright") << std::endl;
             setOutput(fd,checkPin,true);
         }
         else if (readInput(fd, 4) == 0)
         {
-            std::cout << "Switch 4 On - Control light " << twilightState ? "dim" : "bright" << std::endl;
+            std::cout << "Switch 4 On - Control light " << (twilightState ? "dim" : "bright") << std::endl;
             setOutput(fd,checkPin,true);
         }
         else if (readInput(fd, 5) == 0)
         {
-            std::cout << "Switch 5 On - Control light " << twilightState ? "dim" : "bright" << std::endl;
+            std::cout << "Switch 5 On - Control light " << (twilightState ? "dim" : "bright") << std::endl;
             setOutput(fd,checkPin,true);
         }
         else if (readInput(fd, 6) == 0)
         {
-            std::cout << "Switch 6 On - Control light " << twilightState ? "dim" : "bright" << std::endl;
+            std::cout << "Switch 6 On - Control light " << (twilightState ? "dim" : "bright") << std::endl;
             setOutput(fd,checkPin,true);
         }
         else
@@ -126,10 +126,7 @@ int main()
             std::cout << "Control Light Off" << std::endl;
         }
 
-        bOut = !bOut;
-        if (twilightState == 0) {setOutput(fd, 3, false);}
-        else {setOutput(fd, 1, false);}
-        
+        bOut = !bOut;        
         setOutput(fd, blinkPin ? 3 : 1, bOut);
         usleep(100000); // 100 ms polling interval
     }
