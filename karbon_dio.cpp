@@ -88,13 +88,15 @@ int main()
                         std::cout << "Twilight active" << std::endl;
                         blinkPin = 3;
                         checkPin = 2;
-                        setOutput(fd, 0, true);
+                        setOutput(fd, 0, true); //true is off for LED, same as 1 is off for input
                         setOutput(fd, 1, true);
                     }
                     else if (dimSwitch == 1) {
                         std::cout << "Twilight disabled" << std::endl;
                         blinkPin = 1;
                         checkPin = 0;
+                        setOutput(fd, 2, true); 
+                        setOutput(fd, 3, true);
                     }
                     lastDimSwitch = dimSwitch;
                 }
@@ -102,9 +104,8 @@ int main()
 
             // Only update output when the input changes
             if (i != 3) {
+                setOutput(fd, checkPin, inputState);
                 if (inputState != lastState[i]) {
-                    setOutput(fd, checkPin, inputState);
-
                     std::cout << "Input " << i << " = " << inputState
                               << ", Output " << checkPin << " set to "
                               << (inputState ? "OFF" : "ON")
