@@ -95,8 +95,6 @@ int main()
                         std::cout << "Twilight disabled" << std::endl;
                         blinkPin = 1;
                         checkPin = 0;
-                        setOutput(fd, 2, true);
-                        setOutput(fd, 3, true);
                     }
                     lastDimSwitch = dimSwitch;
                 }
@@ -105,14 +103,12 @@ int main()
             // Only update output when the input changes
             if (i != 3) {
                 if (inputState != lastState[i]) {
-                    bool ok = setOutput(fd, checkPin, inputState);
+                    setOutput(fd, checkPin, inputState);
 
                     std::cout << "Input " << i << " = " << inputState
                               << ", Output " << checkPin << " set to "
-                              << (inputState ? "ON" : "OFF")
-                              << ", Result = " << ok
+                              << (inputState ? "OFF" : "ON")
                               << std::endl;
-
                     lastState[i] = inputState;
                 }
             }
