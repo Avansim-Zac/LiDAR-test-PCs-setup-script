@@ -116,12 +116,11 @@ int main()
 
         // Only touch the output when the combined state actually changes
         if (anyActive != lastAnyActive) {
-            bool ok = setOutput(fd, checkPin, anyActive);
+            bool ok = setOutput(fd, checkPin, !anyActive);
 
             std::cout << "Combined switch state = " << (anyActive ? "ACTIVE" : "IDLE")
                        << ", Output " << checkPin << " set to "
                        << (anyActive ? "ON" : "OFF")
-                       << ", Result = " << ok
                        << std::endl;
 
             lastAnyActive = anyActive;
