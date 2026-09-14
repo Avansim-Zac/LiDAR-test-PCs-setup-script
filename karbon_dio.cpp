@@ -69,9 +69,10 @@ int main()
     int lastDimSwitch = -1;
     int blinkPin = 1;
     int checkPin = 0;
+    bool lCon = false
 
     while (true) {
-
+        lCon = false
         for (int i = 0; i < 7; i++) {
             int inputState = readInput(fd, i);
 
@@ -104,7 +105,13 @@ int main()
 
             // Only update output when the input changes
             if (i != 3) {
-                setOutput(fd, checkPin, inputState);
+                if (inputState)
+                {lCon = true}
+
+                if (!lCon)
+                {
+                    setOutput(fd, checkPin, inputState);
+                }
                 if (inputState != lastState[i]) {
                     std::cout << "Input " << i << " = " << inputState
                               << ", Output " << checkPin << " set to "
