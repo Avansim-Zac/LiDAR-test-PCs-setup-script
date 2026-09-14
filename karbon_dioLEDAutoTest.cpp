@@ -124,7 +124,7 @@ int main()
         std::cout << "Dim strobe for 10 cycles complete" << std::endl;
         usleep(1000000);
         std::cout << "Starting alternating strobe for 10 cycles, starting dim" << std::endl;
-        std::cout << "LED should be constant, if flickering wiring is incorrect" << std::endl;
+        std::cout << "LED should be constant, if flickering potential wiring issue" << std::endl;
         usleep(2000000);
         for (int b = 0;b<10;b++)
         {
@@ -204,7 +204,7 @@ int main()
         std::cout << "Dim strobe for 10 cycles complete" << std::endl;
         usleep(1000000);
         std::cout << "Starting alternating strobe for 10 cycles, starting dim" << std::endl;
-        std::cout << "LED should be constant, if flickering wiring is incorrect" << std::endl;
+        std::cout << "LED should be constant, if flickering potential wiring issue" << std::endl;
         usleep(2000000);
         for (int b = 0;b<10;b++)
         {
