@@ -69,42 +69,44 @@ int main()
     bool checkPin = false;
     bool blinkPin = false;
     bool aOut = false;
+    bool lOn = false;
+    bool lOff = true;
 
     while (true) {     
         
         for (int i = 0;i<4;i++)
         {
-            setOutput(fd,i,false);
+            setOutput(fd,i,lOff);
         }       
 
         std::cout << "Starting Test" << std::endl;
         usleep(1000000);
         std::cout << "Turning on Control light" << std::endl;
         usleep(2000000);
-        setOutput(fd,0,true);
+        setOutput(fd,0,);
         usleep(5000000);
         std::cout << "Twlight is off" << std::endl;
         usleep(1000000);
         std::cout << "Turning twlight on" << std::endl;
         usleep(2000000);
-        setOutput(fd,2,true);
+        setOutput(fd,2,lOn);
         usleep(5000000);
         std::cout << "Turning bright off" << std::endl;
         usleep(2000000);
-        setOutput(fd,0,false);
+        setOutput(fd,0,lOff);
         usleep(5000000);
 
         std::cout << "Turning twlight off" << std::endl;
-        setOutput(fd,2,false);
+        setOutput(fd,2,lOff);
         usleep(5000000);
         std::cout << "Starting bright strobe for 10 cycles" << std::endl;
         usleep(2000000);
 
         for (int a = 0;a<10;a++)
         {
-            setOutput(fd,0,true);
+            setOutput(fd,0,lOn);
             usleep(100000);
-            setOutput(fd,0,false);
+            setOutput(fd,0,lOff);
             usleep(100000);
         }
         std::cout << "Bright strobe for 10 cycles complete" << std::endl;
@@ -114,9 +116,9 @@ int main()
 
         for (int b = 0;b<10;b++)
         {
-            setOutput(fd,2,true);
+            setOutput(fd,2,lOn);
             usleep(100000);
-            setOutput(fd,2,false);
+            setOutput(fd,2,lOff);
             usleep(100000);
         }
         std::cout << "Dim strobe for 10 cycles complete" << std::endl;
@@ -125,30 +127,34 @@ int main()
         usleep(2000000);
         for (int b = 0;b<10;b++)
         {
-            setOutput(fd,2,true);
+            setOutput(fd,2,lOn);
             usleep(100000);
-            setOutput(fd,2,false);
-            setOutput(fd,0,true);
+            setOutput(fd,2,lOff);
+            setOutput(fd,0,lOn);
             usleep(100000);
-            setOutput(fd,0,false);
+            setOutput(fd,0,lOff);
             usleep(100000);
         }
         std::cout << "Alternating strobe for 10 cycles complete" << std::endl;
         usleep(1000000);
         std::cout << "Starting Dim toggle strobe for 10 cycles, starting Bright" << std::endl;
         usleep(2000000);
-        setOutput(fd,0,true);
+        setOutput(fd,0,lOn);
         for (int b = 0;b<10;b++)
         {
             usleep(100000);
-            setOutput(fd,2,true);
+            setOutput(fd,2,lOn);
             usleep(100000);
-            setOutput(fd,2,false);
+            setOutput(fd,2,lOff);
         }
-        setOutput(fd,0,false);
+        setOutput(fd,0,lOff);
         usleep(2000000);
         std::cout << "Dim toggle strobe for 10 cycles complete" << std::endl;
         usleep(2000000);
+        for (int i = 0;i<4;i++)
+        {
+            setOutput(fd,i,lOff);
+        }    
         std::cout << "Test complete, auto exit in 2 seconds" << std::endl;
         usleep(2000000);
         break;
