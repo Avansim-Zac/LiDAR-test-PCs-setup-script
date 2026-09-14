@@ -127,7 +127,7 @@ int main()
         }
 
         bOut = !bOut;
-        if (twlightState == 0) {setOutput(fd, 3, false);}
+        if (twilightState == 0) {setOutput(fd, 3, false);}
         else {setOutput(fd, 1, false);}
         
         setOutput(fd, blinkPin ? 3 : 1, bOut);
