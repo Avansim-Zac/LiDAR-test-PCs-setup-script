@@ -122,7 +122,7 @@ int main()
 
         // Only touch the output when the combined state actually changes
         if (anyActive != lastAnyActive || forceUpdate) {
-            bool ok = setOutput(fd, checkPin, !anyActive);
+            setOutput(fd, checkPin, !anyActive);
 
             std::cout << "Combined switch state = " << (anyActive ? "ACTIVE" : "IDLE")
                        << ", Output " << checkPin << " set to "
@@ -132,7 +132,7 @@ int main()
             lastAnyActive = anyActive;
         }
 
-        // Asymmetric blink: 200ms on, 100ms off
+        // Asymmetric blink: 300ms on, 100ms off
         auto now = std::chrono::steady_clock::now();
         auto elapsed = now - lastBlinkChange;
         auto threshold = bOut ? blinkOnDuration : blinkOffDuration;
