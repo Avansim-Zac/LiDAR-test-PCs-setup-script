@@ -33,4 +33,5 @@ https://raw.githubusercontent.com/Avansim-Zac/LiDAR-test-PCs-setup-script/main/k
 sudo gcc -c pse.c -o pse.o
 sudo g++ karbon_dio.cpp pse.o -o karbon_dio
 echo "--> Created DIO test Project..."
+echo "--> Running DIO test Project..."
 sudo ./karbon_dio
