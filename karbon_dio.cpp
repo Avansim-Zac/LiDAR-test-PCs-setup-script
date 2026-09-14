@@ -67,7 +67,7 @@ int main()
     int lastState[7] = {-1,-1,-1,-1,-1,-1,-1};
     bool bOut = false;
     auto lastBlinkChange = std::chrono::steady_clock::now();
-    const auto blinkOnDuration  = std::chrono::milliseconds(200);
+    const auto blinkOnDuration  = std::chrono::milliseconds(300);
     const auto blinkOffDuration = std::chrono::milliseconds(100);
 
     int lastDimSwitch = -1;
