@@ -149,6 +149,7 @@ echo "--> Created DIO test Project..."
 cd
 echo "--> Disbaling Sleep States..."
 sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
+echo "--> Sleep states disabled..."
 
 echo "========================================================"
 echo " Setup complete! A system REBOOT is required."
