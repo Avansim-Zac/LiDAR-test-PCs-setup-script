@@ -10,7 +10,7 @@ In Home/$USER/kono_dio_da_projects you'll find pse.c, pse.h, heci_types.h
 
 Code::Blocks is installed for IDE
  - Start a project with SFML template
- - Copy from kono_dio_da_projects pse.c pse.h amd heci_types.h into your project folder
+ - Copy from kono_dio_da_projects pse.c pse.h and heci_types.h into your project folder
  - import pse.c pse.h and heci_types.h into the project by right clicking on the project in the left hand panel and select add files
   - note when compiling, pse.c may need to be built separately from the main project (Code::Blocks should handle this gracefully)
    - if code blocks doesn't build pse.c correctly, then just run in terminal while in the projects directory gcc -c pse.c -o pse.o
@@ -26,7 +26,7 @@ Code::Blocks is installed for IDE
 Running the test script
 in cmd/terminal enter
 cd ~/kono_dio_da_project
-sudo ./karbon.dio
+sudo ./karbon_dio
 
 If the test script shows the message "failed to connect, are you running as root?" This means the driver has failed to load on boot or nothing is plugged into the DIO port on the karbon410
 To reload the driver you can simply run these commands:
