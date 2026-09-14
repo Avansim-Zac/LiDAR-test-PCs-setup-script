@@ -75,13 +75,7 @@ int main()
         for (int i = 0;i<4;i++)
         {
             setOutput(fd,i,false);
-        }
-        if (readInput(fd, 0) == 0)
-        {
-            std::cout << "Switch 0 On - Control light " << (twilightState ? "dim" : "bright") << std::endl;
-            setOutput(fd,checkPin,true);
-        }
-       
+        }       
 
         std::cout << "Starting Test" << std::endl;
         usleep(1000000);
