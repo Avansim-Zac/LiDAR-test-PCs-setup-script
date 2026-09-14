@@ -55,8 +55,7 @@ int readInput(int fd, uint8_t pin)
 int main()
 {
     int fd = pse_client_connect();
-    setOutput(fd,0,false);
-    setOutput(fd,2,false);
+
     if(fd <= 0)
     {
         std::cout << "Failed to connect\n";
@@ -69,16 +68,17 @@ int main()
 
     bool checkPin = false;
     bool blinkPin = false;
-
+    bool aOut = false;
 
     while (true) {
-            
         int twilightState = readInput(fd, 3);
         if (twilightState == 0 && twilightState != lastState[3])
         {
             std::cout << "Twlight on " << twilightState << std::endl;
             checkPin = true;
             blinkPin = true;
+            setOutput(fd, 0, false);
+            setOutput(fd, 1, false);
             lastState[3] = twilightState;
         }
         else if (twilightState == 1 && twilightState != lastState[3])
@@ -86,12 +86,42 @@ int main()
             std::cout << "Twlight off " << twilightState << std::endl;
             checkPin = false;
             blinkPin = false;
+            setOutput(fd, 2, false);
+            setOutput(fd, 3, false);
             lastState[3] = twilightState;
         }
         
+        if (readInput(fd, 0) == 0)
+        {
+            setOutput(fd,checkPin,true);
+        }
+        else if ((readInput(fd, 1) == 0)
+        {
+            setOutput(fd,checkPin,true);
+        }
+        else if ((readInput(fd, 2) == 0)
+        {
+            setOutput(fd,checkPin,true);
+        }
+        else if ((readInput(fd, 4) == 0)
+        {
+            setOutput(fd,checkPin,true);
+        }
+        else if ((readInput(fd, 5) == 0)
+        {
+            setOutput(fd,checkPin,true);
+        }
+        else if ((readInput(fd, 6) == 0)
+        {
+            setOutput(fd,checkPin,true);
+        }
+        else
+        {
+            setOutput(fd,checkPin,false);
+        }
+
         bOut = !bOut;
         setOutput(fd, blinkPin ? 3 : 1, bOut);
-        setOutput(fd, blinkPin ? 1 : 3, !bOut);
         usleep(100000); // 100 ms polling interval
     }
     close(fd);
