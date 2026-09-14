@@ -69,16 +69,18 @@ int main()
     int lastDimSwitch = -1;
     int blinkPin = 1;
     int checkPin = 0;
-    bool lCon = false;
+    bool lastAnyActive = false; // tracks the combined state of inputs 0,1,2,4,5,6
+
 
     while (true) {
-        lCon = false;
+        bool anyActive = false; // recomputed fresh each pass
+
         for (int i = 0; i < 7; i++) {
             int inputState = readInput(fd, i);
 
             if (inputState < 0) {
                 std::cout << "Failed to read input " << i << "\n";
-                break;
+                continue; // don't let one bad read skip the rest, including input 3
             }
 
             if (i == 3) {
@@ -89,37 +91,40 @@ int main()
                         std::cout << "Twilight active" << std::endl;
                         blinkPin = 3;
                         checkPin = 2;
-                        setOutput(fd, 0, true); //true is off for LED, same as 1 is off for input
+                        setOutput(fd, 0, true); // off
                         setOutput(fd, 1, true);
                     }
                     else if (dimSwitch == 1) {
                         std::cout << "Twilight disabled" << std::endl;
                         blinkPin = 1;
                         checkPin = 0;
-                        setOutput(fd, 2, true); 
+                        setOutput(fd, 2, true); // off
                         setOutput(fd, 3, true);
                     }
                     lastDimSwitch = dimSwitch;
                 }
+                continue; // input 3 doesn't participate in the mirror aggregate
             }
 
-            // Only update output when the input changes
-            if (i != 3) {
-                if (inputState)
-                {lCon = true;}
-
-                if (!lCon)
-                {
-                    setOutput(fd, checkPin, inputState);
-                }
-                if (inputState != lastState[i]) {
-                    std::cout << "Input " << i << " = " << inputState
-                              << ", Output " << checkPin << " set to "
-                              << (inputState ? "OFF" : "ON")
-                              << std::endl;
-                    lastState[i] = inputState;
-                }
+            // inputState == 0 mean on
+            if (inputState == 0) {
+                anyActive = true;
             }
+
+            lastState[i] = inputState;
+        }
+
+        // Only touch the output when the combined state actually changes
+        if (anyActive != lastAnyActive) {
+            bool ok = setOutput(fd, checkPin, anyActive);
+
+            std::cout << "Combined switch state = " << (anyActive ? "ACTIVE" : "IDLE")
+                       << ", Output " << checkPin << " set to "
+                       << (anyActive ? "ON" : "OFF")
+                       << ", Result = " << ok
+                       << std::endl;
+
+            lastAnyActive = anyActive;
         }
 
         bOut = !bOut;
